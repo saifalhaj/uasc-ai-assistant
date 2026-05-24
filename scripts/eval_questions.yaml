@@ -1,0 +1,39 @@
+questions:
+  - id: q001
+    question: "What are the registration requirements for unmanned aerial systems in Dubai?"
+    expected_keywords:
+      - registration
+      - permit
+      - authority
+    notes: "Baseline retrieval check — should find regulatory docs if any are indexed"
+
+  - id: q002
+    question: "What is the maximum permitted altitude for drone operations in Dubai?"
+    expected_keywords:
+      - altitude
+      - metres
+      - feet
+    notes: "Numeric fact retrieval"
+
+  - id: q003
+    question: "ما هي المناطق المحظورة للطائرات بدون طيار في دبي؟"
+    expected_keywords:
+      - محظورة
+      - منطقة
+    notes: "Arabic-language query — tests bilingual retrieval"
+
+  - id: q004
+    question: "What safety equipment is required for commercial drone operators?"
+    expected_keywords:
+      - safety
+      - equipment
+      - operator
+    notes: "Multi-concept retrieval"
+
+  - id: q005
+    question: "Who is responsible for investigating drone incidents in the UAE?"
+    expected_keywords:
+      - investigation
+      - authority
+      - incident
+    notes: "Institutional knowledge retrieval"
