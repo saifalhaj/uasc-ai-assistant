@@ -10,6 +10,7 @@ export default function Home() {
         width={220}
         height={220}
         priority
+        unoptimized
         className="opacity-90"
       />
 
