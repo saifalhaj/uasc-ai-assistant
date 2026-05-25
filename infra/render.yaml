@@ -21,7 +21,7 @@ services:
       - key: SUPABASE_ANON_KEY
         sync: false
       - key: ALLOWED_ORIGINS
-        value: "https://uasc-agent.vercel.app"
+        value: "https://uasc-ai-assistant.vercel.app"
       - key: PYTHONUNBUFFERED
         value: "1"
     healthCheckPath: /health
