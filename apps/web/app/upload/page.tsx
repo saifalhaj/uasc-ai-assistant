@@ -10,12 +10,12 @@ const SOURCE_TIERS = ["authoritative", "vetted", "open"] as const;
 const LANGUAGES = ["en", "ar", "mixed"] as const;
 
 const BADGE_COLORS: Record<string, string> = {
-  public: "bg-green-100 text-green-800",
-  internal: "bg-yellow-100 text-yellow-800",
-  restricted: "bg-red-100 text-red-800",
-  authoritative: "bg-blue-100 text-blue-800",
-  vetted: "bg-indigo-100 text-indigo-800",
-  open: "bg-gray-100 text-gray-700",
+  public: "bg-green-900 text-green-300",
+  internal: "bg-yellow-900 text-yellow-300",
+  restricted: "bg-red-900 text-red-300",
+  authoritative: "bg-blue-900 text-blue-300",
+  vetted: "bg-indigo-900 text-indigo-300",
+  open: "bg-slate-700 text-slate-300",
 };
 
 export default function UploadPage() {
@@ -77,46 +77,46 @@ export default function UploadPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-uasc-navy mb-6">Upload Document</h1>
+      <h1 className="text-2xl font-bold text-white mb-6">Upload Document</h1>
 
       {status === "done" && result ? (
-        <div className="bg-green-50 border border-green-200 rounded-xl p-6 space-y-3">
-          <h2 className="text-green-800 font-semibold text-lg">Document Indexed</h2>
+        <div className="bg-green-950 border border-green-800 rounded-xl p-6 space-y-3">
+          <h2 className="text-green-400 font-semibold text-lg">Document Indexed</h2>
           <dl className="text-sm space-y-1">
             <div className="flex gap-2">
-              <dt className="text-gray-500 w-32">Document ID:</dt>
-              <dd className="font-mono text-xs text-gray-800">{result.document_id}</dd>
+              <dt className="text-slate-500 w-32">Document ID:</dt>
+              <dd className="font-mono text-xs text-slate-300">{result.document_id}</dd>
             </div>
             <div className="flex gap-2">
-              <dt className="text-gray-500 w-32">Status:</dt>
+              <dt className="text-slate-500 w-32">Status:</dt>
               <dd>
-                <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full font-medium">
+                <span className="bg-green-900 text-green-300 text-xs px-2 py-0.5 rounded-full font-medium">
                   {result.status}
                 </span>
               </dd>
             </div>
             {result.chunk_count !== undefined && (
               <div className="flex gap-2">
-                <dt className="text-gray-500 w-32">Chunks created:</dt>
-                <dd className="font-medium">{result.chunk_count}</dd>
+                <dt className="text-slate-500 w-32">Chunks created:</dt>
+                <dd className="font-medium text-slate-200">{result.chunk_count}</dd>
               </div>
             )}
           </dl>
           <div className="flex gap-3 pt-2">
-            <button onClick={reset} className="px-4 py-2 bg-uasc-navy text-white rounded-lg text-sm hover:bg-opacity-90">
+            <button onClick={reset} className="px-4 py-2 bg-uasc-gold text-uasc-dark rounded-lg text-sm hover:brightness-110 transition">
               Upload Another
             </button>
-            <a href="/chat" className="px-4 py-2 border border-uasc-navy text-uasc-navy rounded-lg text-sm hover:bg-uasc-navy hover:text-white transition">
+            <a href="/chat" className="px-4 py-2 border border-uasc-gold text-uasc-gold rounded-lg text-sm hover:bg-uasc-gold hover:text-uasc-dark transition">
               Ask a Question
             </a>
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="bg-uasc-card rounded-xl border border-uasc-border p-6 space-y-5">
           {/* File picker */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              File <span className="text-gray-400">(PDF, DOCX, TXT)</span>
+            <label className="block text-sm font-medium text-slate-300 mb-1">
+              File <span className="text-slate-500">(PDF, DOCX, TXT)</span>
             </label>
             <input
               ref={fileRef}
@@ -124,30 +124,30 @@ export default function UploadPage() {
               accept=".pdf,.docx,.doc,.txt"
               required
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-uasc-navy file:text-white hover:file:bg-opacity-90 cursor-pointer"
+              className="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-uasc-gold file:text-uasc-dark hover:file:brightness-110 cursor-pointer"
             />
           </div>
 
           {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Title</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={file?.name || "Document title"}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uasc-navy focus:border-transparent outline-none"
+              className="w-full bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uasc-gold focus:border-transparent outline-none"
             />
           </div>
 
           {/* Metadata row */}
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Classification</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Classification</label>
               <select
                 value={classification}
                 onChange={(e) => setClassification(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uasc-navy outline-none"
+                className="w-full bg-slate-800 border border-slate-600 text-slate-100 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uasc-gold outline-none"
               >
                 {CLASSIFICATIONS.map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -155,11 +155,11 @@ export default function UploadPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Source Tier</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Source Tier</label>
               <select
                 value={sourceTier}
                 onChange={(e) => setSourceTier(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uasc-navy outline-none"
+                className="w-full bg-slate-800 border border-slate-600 text-slate-100 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uasc-gold outline-none"
               >
                 {SOURCE_TIERS.map((t) => (
                   <option key={t} value={t}>{t}</option>
@@ -167,11 +167,11 @@ export default function UploadPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Language</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Language</label>
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uasc-navy outline-none"
+                className="w-full bg-slate-800 border border-slate-600 text-slate-100 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uasc-gold outline-none"
               >
                 {LANGUAGES.map((l) => (
                   <option key={l} value={l}>{l}</option>
@@ -190,7 +190,7 @@ export default function UploadPage() {
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               placeholder="uav, regulation, safety"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uasc-navy outline-none"
+              className="w-full bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uasc-gold outline-none"
             />
           </div>
 
@@ -203,14 +203,14 @@ export default function UploadPage() {
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${BADGE_COLORS[sourceTier]}`}>
                 {sourceTier}
               </span>
-              <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 text-gray-700">
+              <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-slate-700 text-slate-300">
                 {language}
               </span>
             </div>
           )}
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+            <div className="bg-red-950 border border-red-800 text-red-400 text-sm rounded-lg px-4 py-3">
               {error}
             </div>
           )}
@@ -218,7 +218,7 @@ export default function UploadPage() {
           <button
             type="submit"
             disabled={!file || status === "uploading"}
-            className="w-full py-2.5 bg-uasc-navy text-white rounded-lg font-medium hover:bg-opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-2.5 bg-uasc-gold text-uasc-dark rounded-lg font-medium hover:brightness-110 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {status === "uploading" ? "Indexing..." : "Upload & Index"}
           </button>
