@@ -2,12 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --color-navy: #1B2A4A;
-  --color-gold: #C9A84C;
-}
-
 body {
-  background-color: #020617;
-  color: #F1F5F9;
+  background-color: #111111;
+  color: #E0E0E0;
 }

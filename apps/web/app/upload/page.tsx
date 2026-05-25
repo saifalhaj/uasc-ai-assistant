@@ -10,12 +10,12 @@ const SOURCE_TIERS = ["authoritative", "vetted", "open"] as const;
 const LANGUAGES = ["en", "ar", "mixed"] as const;
 
 const BADGE_COLORS: Record<string, string> = {
-  public: "bg-green-900 text-green-300",
-  internal: "bg-yellow-900 text-yellow-300",
-  restricted: "bg-red-900 text-red-300",
-  authoritative: "bg-blue-900 text-blue-300",
-  vetted: "bg-indigo-900 text-indigo-300",
-  open: "bg-slate-700 text-slate-300",
+  public: "bg-uasc-card text-uasc-sub border border-uasc-border",
+  internal: "bg-uasc-card text-uasc-sub border border-uasc-border",
+  restricted: "bg-uasc-card text-uasc-text border border-uasc-border",
+  authoritative: "bg-uasc-card text-uasc-sub border border-uasc-border",
+  vetted: "bg-uasc-card text-uasc-sub border border-uasc-border",
+  open: "bg-uasc-card text-uasc-muted border border-uasc-border",
 };
 
 export default function UploadPage() {
@@ -77,46 +77,46 @@ export default function UploadPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-white mb-6">Upload Document</h1>
+      <h1 className="text-xl font-semibold text-uasc-text mb-6 tracking-wide">Upload Document</h1>
 
       {status === "done" && result ? (
-        <div className="bg-green-950 border border-green-800 rounded-xl p-6 space-y-3">
-          <h2 className="text-green-400 font-semibold text-lg">Document Indexed</h2>
+        <div className="bg-uasc-card border border-uasc-border rounded p-6 space-y-3">
+          <h2 className="text-uasc-text font-semibold">Document Indexed</h2>
           <dl className="text-sm space-y-1">
             <div className="flex gap-2">
-              <dt className="text-slate-500 w-32">Document ID:</dt>
-              <dd className="font-mono text-xs text-slate-300">{result.document_id}</dd>
+              <dt className="text-uasc-muted w-32">Document ID:</dt>
+              <dd className="font-mono text-xs text-uasc-sub">{result.document_id}</dd>
             </div>
             <div className="flex gap-2">
-              <dt className="text-slate-500 w-32">Status:</dt>
+              <dt className="text-uasc-muted w-32">Status:</dt>
               <dd>
-                <span className="bg-green-900 text-green-300 text-xs px-2 py-0.5 rounded-full font-medium">
+                <span className="bg-uasc-border text-uasc-text text-xs px-2 py-0.5 rounded font-medium">
                   {result.status}
                 </span>
               </dd>
             </div>
             {result.chunk_count !== undefined && (
               <div className="flex gap-2">
-                <dt className="text-slate-500 w-32">Chunks created:</dt>
-                <dd className="font-medium text-slate-200">{result.chunk_count}</dd>
+                <dt className="text-uasc-muted w-32">Chunks created:</dt>
+                <dd className="font-medium text-uasc-text">{result.chunk_count}</dd>
               </div>
             )}
           </dl>
           <div className="flex gap-3 pt-2">
-            <button onClick={reset} className="px-4 py-2 bg-uasc-gold text-uasc-dark rounded-lg text-sm hover:brightness-110 transition">
+            <button onClick={reset} className="px-4 py-2 bg-uasc-text text-uasc-bg rounded text-sm hover:opacity-90 transition">
               Upload Another
             </button>
-            <a href="/chat" className="px-4 py-2 border border-uasc-gold text-uasc-gold rounded-lg text-sm hover:bg-uasc-gold hover:text-uasc-dark transition">
+            <a href="/chat" className="px-4 py-2 border border-uasc-border text-uasc-sub rounded text-sm hover:text-uasc-text hover:border-uasc-sub transition">
               Ask a Question
             </a>
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="bg-uasc-card rounded-xl border border-uasc-border p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="bg-uasc-card border border-uasc-border rounded p-6 space-y-5">
           {/* File picker */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">
-              File <span className="text-slate-500">(PDF, DOCX, TXT)</span>
+            <label className="block text-xs font-medium text-uasc-sub mb-1 uppercase tracking-widest">
+              File <span className="text-uasc-muted normal-case tracking-normal">(PDF, DOCX, TXT)</span>
             </label>
             <input
               ref={fileRef}
@@ -124,30 +124,30 @@ export default function UploadPage() {
               accept=".pdf,.docx,.doc,.txt"
               required
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              className="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-uasc-gold file:text-uasc-dark hover:file:brightness-110 cursor-pointer"
+              className="block w-full text-sm text-uasc-muted file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:bg-uasc-border file:text-uasc-text hover:file:opacity-80 cursor-pointer"
             />
           </div>
 
           {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Title</label>
+            <label className="block text-xs font-medium text-uasc-sub mb-1 uppercase tracking-widest">Title</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={file?.name || "Document title"}
-              className="w-full bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uasc-gold focus:border-transparent outline-none"
+              className="w-full bg-uasc-bg border border-uasc-border text-uasc-text placeholder-uasc-muted rounded px-3 py-2 text-sm focus:outline-none focus:border-uasc-sub"
             />
           </div>
 
           {/* Metadata row */}
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Classification</label>
+              <label className="block text-xs font-medium text-uasc-sub mb-1 uppercase tracking-widest">Classification</label>
               <select
                 value={classification}
                 onChange={(e) => setClassification(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-600 text-slate-100 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uasc-gold outline-none"
+                className="w-full bg-uasc-bg border border-uasc-border text-uasc-text rounded px-3 py-2 text-sm focus:outline-none focus:border-uasc-sub"
               >
                 {CLASSIFICATIONS.map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -155,11 +155,11 @@ export default function UploadPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Source Tier</label>
+              <label className="block text-xs font-medium text-uasc-sub mb-1 uppercase tracking-widest">Source Tier</label>
               <select
                 value={sourceTier}
                 onChange={(e) => setSourceTier(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-600 text-slate-100 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uasc-gold outline-none"
+                className="w-full bg-uasc-bg border border-uasc-border text-uasc-text rounded px-3 py-2 text-sm focus:outline-none focus:border-uasc-sub"
               >
                 {SOURCE_TIERS.map((t) => (
                   <option key={t} value={t}>{t}</option>
@@ -167,11 +167,11 @@ export default function UploadPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Language</label>
+              <label className="block text-xs font-medium text-uasc-sub mb-1 uppercase tracking-widest">Language</label>
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-600 text-slate-100 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uasc-gold outline-none"
+                className="w-full bg-uasc-bg border border-uasc-border text-uasc-text rounded px-3 py-2 text-sm focus:outline-none focus:border-uasc-sub"
               >
                 {LANGUAGES.map((l) => (
                   <option key={l} value={l}>{l}</option>
@@ -190,7 +190,7 @@ export default function UploadPage() {
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               placeholder="uav, regulation, safety"
-              className="w-full bg-slate-800 border border-slate-600 text-slate-100 placeholder-slate-500 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-uasc-gold outline-none"
+              className="w-full bg-uasc-bg border border-uasc-border text-uasc-text placeholder-uasc-muted rounded px-3 py-2 text-sm focus:outline-none focus:border-uasc-sub"
             />
           </div>
 
@@ -203,14 +203,14 @@ export default function UploadPage() {
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${BADGE_COLORS[sourceTier]}`}>
                 {sourceTier}
               </span>
-              <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-slate-700 text-slate-300">
+              <span className="text-xs px-2 py-0.5 rounded font-medium bg-uasc-border text-uasc-muted">
                 {language}
               </span>
             </div>
           )}
 
           {error && (
-            <div className="bg-red-950 border border-red-800 text-red-400 text-sm rounded-lg px-4 py-3">
+            <div className="bg-uasc-card border border-uasc-border text-uasc-sub text-sm rounded px-4 py-3">
               {error}
             </div>
           )}
@@ -218,7 +218,7 @@ export default function UploadPage() {
           <button
             type="submit"
             disabled={!file || status === "uploading"}
-            className="w-full py-2.5 bg-uasc-gold text-uasc-dark rounded-lg font-medium hover:brightness-110 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-2.5 bg-uasc-text text-uasc-bg rounded font-medium text-sm hover:opacity-90 transition disabled:opacity-30 disabled:cursor-not-allowed"
           >
             {status === "uploading" ? "Indexing..." : "Upload & Index"}
           </button>

@@ -8,12 +8,12 @@ module.exports = {
     extend: {
       colors: {
         uasc: {
-          navy: "#1B2A4A",
-          gold: "#C9A84C",
-          light: "#F5F7FA",
-          dark: "#020617",
-          card: "#0F172A",
-          border: "#1E293B",
+          bg: "#111111",
+          card: "#1A1A1A",
+          border: "#2A2A2A",
+          muted: "#555555",
+          sub: "#888888",
+          text: "#E0E0E0",
         },
       },
     },
