@@ -113,19 +113,22 @@ class RAGAgent:
 
         latency_ms = int((time.monotonic() - start) * 1000)
 
-        # 8. Audit log
-        await self._db.write_audit(
-            AuditEntry(
-                id=None,
-                user_id=user_id,
-                clearance=clearance,
-                question=request.question,
-                retrieved_chunk_ids=[r.id for r in results],
-                model_used=llm_response.model,
-                response_summary=llm_response.content,
-                latency_ms=latency_ms,
+        # 8. Audit log (non-fatal)
+        try:
+            await self._db.write_audit(
+                AuditEntry(
+                    id=None,
+                    user_id=user_id,
+                    clearance=clearance,
+                    question=request.question,
+                    retrieved_chunk_ids=[r.id for r in results],
+                    model_used=llm_response.model,
+                    response_summary=llm_response.content,
+                    latency_ms=latency_ms,
+                )
             )
-        )
+        except Exception:
+            pass
 
         return AnswerEnvelope(
             answer=llm_response.content,
