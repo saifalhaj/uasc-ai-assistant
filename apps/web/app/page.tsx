@@ -211,9 +211,9 @@ export default function Home() {
             { label: "Training & SOP Knowledge",      tag: "SOP",      desc: "Access SOPs, training material, operator guidance, review content, procedures, and mission execution instructions." },
           ].map((cap) => (
             <div key={cap.label} className="glass-card rounded px-4 py-4">
-              <div className="flex items-center justify-between mb-2.5">
-                <span className="text-[9px] tracking-[0.18em] uppercase text-uasc-sub">{cap.label}</span>
-                <span className="text-[8px] tracking-widest text-uasc-teal opacity-50">{cap.tag}</span>
+              <div className="flex items-start justify-between mb-2.5 min-h-[32px]">
+                <span className="text-[9px] tracking-[0.18em] uppercase text-uasc-sub flex-1 pr-2 leading-relaxed">{cap.label}</span>
+                <span className="text-[8px] tracking-widest text-uasc-teal opacity-50 shrink-0 pt-0.5">{cap.tag}</span>
               </div>
               <div className="h-px bg-uasc-border mb-2.5" />
               <p className="text-[10px] text-uasc-muted leading-relaxed">{cap.desc}</p>

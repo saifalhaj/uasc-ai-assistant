@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import "./globals.css";
 
@@ -15,16 +14,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <nav className="glass-nav fixed top-0 left-0 right-0 z-50 flex items-center px-5 py-2.5 border-b border-uasc-border">
 
-          {/* Brand — logo links back to home */}
-          <Link href="/" className="flex items-center gap-3 shrink-0">
-            <Image
-              src="/UASCLogoWhite.png"
-              alt="UASC"
-              width={38}
-              height={38}
-              unoptimized
-              className="opacity-80"
-            />
+          {/* Brand — links back to home */}
+          <Link href="/" className="flex items-center shrink-0">
             <div className="flex flex-col leading-none">
               <span className="text-[11px] font-semibold tracking-[0.18em] uppercase text-uasc-text">UASC</span>
               <span className="text-[8px] tracking-widest uppercase text-uasc-sub opacity-55">Dubai Police</span>
