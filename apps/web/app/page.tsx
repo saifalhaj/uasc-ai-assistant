@@ -148,25 +148,6 @@ export default function Home() {
       {/* ── Hero Content ────────────────────────────────────────── */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-52px)] px-6 py-20">
 
-        {/* Status badge */}
-        <div
-          className="flex items-center gap-2 mb-10 px-4 py-1.5 rounded-full"
-          style={{
-            background: "rgba(7,10,15,0.75)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
-            border: "1px solid rgba(15,22,32,0.95)",
-          }}
-        >
-          <span
-            className="block w-1.5 h-1.5 rounded-full animate-pulse"
-            style={{ backgroundColor: "#8C9BAA", boxShadow: "0 0 4px #8C9BAA" }}
-          />
-          <span className="text-[9px] tracking-[0.22em] uppercase text-uasc-sub">
-            Operational System · Dubai Police UASC
-          </span>
-        </div>
-
         {/* Main glass panel */}
         <div className="glass-panel relative max-w-xl w-full text-center px-10 py-12 rounded-lg">
 
