@@ -205,10 +205,10 @@ export default function Home() {
         {/* Capability cards */}
         <div className="grid grid-cols-4 gap-3 max-w-3xl w-full mt-6">
           {[
-            { label: "Multilingual",       tag: "AR · EN",  desc: "Arabic and English via advanced multilingual embeddings." },
-            { label: "Source Attribution", tag: "CITED",    desc: "Classification badges and tier levels on every citation." },
-            { label: "Audit Compliance",   tag: "LOGGED",   desc: "Immutable query and retrieval log for regulatory review." },
-            { label: "Intel Synthesis",    tag: "ACTIVE",   desc: "Cross-document reasoning across the regulatory knowledge base." },
+            { label: "Operational Briefing",          tag: "OPS",      desc: "Instant summaries of missions, incidents, DroneBox activity, airspace updates, and operational events across all autonomous systems." },
+            { label: "Safety & Risk Intelligence",    tag: "RISK",     desc: "Consolidated safety reports, investigations, system failures, operational hazards, and recurring risk pattern analysis." },
+            { label: "Technical Support & Maintenance", tag: "TECH",   desc: "Technical troubleshooting, maintenance procedures, fault history, downtime analysis, and field support guidance." },
+            { label: "Training & SOP Knowledge",      tag: "SOP",      desc: "Access SOPs, training material, operator guidance, review content, procedures, and mission execution instructions." },
           ].map((cap) => (
             <div key={cap.label} className="glass-card rounded px-4 py-4">
               <div className="flex items-center justify-between mb-2.5">
