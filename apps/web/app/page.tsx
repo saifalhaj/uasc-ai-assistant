@@ -177,14 +177,14 @@ export default function Home() {
           <span className="absolute bottom-3 right-3 w-5 h-5 border-b border-r border-uasc-teal opacity-15" />
 
           {/* UASC logo — replaces title text */}
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-8">
             <Image
               src="/UASCLogoWhite.png"
               alt="UASC"
-              width={108}
-              height={108}
+              width={200}
+              height={200}
               unoptimized
-              className="opacity-80"
+              className="opacity-90"
             />
           </div>
 
@@ -196,7 +196,7 @@ export default function Home() {
           </div>
 
           {/* Subtitle */}
-          <p className="text-[11px] tracking-[0.25em] uppercase text-uasc-teal mb-8 opacity-65">
+          <p className="text-[11px] tracking-[0.25em] uppercase text-uasc-teal mb-8">
             Operational Intelligence Platform
           </p>
 

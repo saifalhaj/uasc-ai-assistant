@@ -34,9 +34,9 @@ body {
 }
 
 .btn-primary {
-  background: rgba(200, 208, 218, 0.06);
-  border: 1px solid rgba(200, 208, 218, 0.22);
-  color: #C8D0DA;
+  background: rgba(220, 230, 240, 0.08);
+  border: 1px solid rgba(220, 230, 240, 0.3);
+  color: #DCE6F0;
   transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 .btn-primary:hover {
@@ -47,8 +47,8 @@ body {
 
 .btn-secondary {
   background: rgba(7, 10, 15, 0.4);
-  border: 1px solid rgba(200, 208, 218, 0.09);
-  color: #566474;
+  border: 1px solid rgba(220, 230, 240, 0.15);
+  color: #95ADBF;
   transition: border-color 0.2s, color 0.2s;
 }
 .btn-secondary:hover {
