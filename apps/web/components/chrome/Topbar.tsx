@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import { Dot } from '@/components/ui/Dot';
 import { Crumbs } from '@/components/ui/Crumbs';
@@ -44,10 +45,12 @@ export function Topbar({
         'border-b border-border-base bg-bg-deep',
       )}
     >
-      <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.1em] text-text-mid font-medium">
-        <Dot tone={systemsTone} live />
-        <span>{systemsLabel}</span>
-      </div>
+      <Link
+        href="/"
+        className="font-mono text-[13px] font-medium tracking-[0.18em] uppercase text-text-hi hover:text-white transition-colors duration-150 shrink-0"
+      >
+        UASC
+      </Link>
 
       <div className="flex items-baseline gap-3 text-[11px]">
         <span className="font-mono text-text-hi font-medium">{time} GST</span>
@@ -56,9 +59,13 @@ export function Topbar({
 
       <Crumbs items={crumbs} />
 
-      <div className="ml-auto flex items-center gap-3">
+      <div className="ml-auto flex items-center gap-4">
         <span className="text-[12px] text-text-mid">{user.name}</span>
         <Clearance level={user.clearance} />
+        <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.1em] text-text-mid font-medium">
+          <Dot tone={systemsTone} live />
+          <span>{systemsLabel}</span>
+        </div>
       </div>
     </header>
   );
