@@ -8,20 +8,20 @@ module.exports = {
     extend: {
       colors: {
         uasc: {
-          bg:     "#05070A",
-          card:   "#0E141B",
-          border: "#162030",
-          muted:  "#506A82",
-          sub:    "#7A98B5",
-          text:   "#C8D6E5",
-          teal:   "#00C9B1",
-          navy:   "#0F2D4A",
+          bg:     "#020406",
+          card:   "#070A0F",
+          border: "#0F1620",
+          muted:  "#3A4A58",
+          sub:    "#566474",
+          text:   "#C8D0DA",
+          teal:   "#8C9BAA",
+          navy:   "#0E1520",
         },
       },
       keyframes: {
         ambientPulse: {
           "0%, 100%": { opacity: "1" },
-          "50%":       { opacity: "0.55" },
+          "50%":       { opacity: "0.5" },
         },
         fadeSlideUp: {
           "0%":   { opacity: "0", transform: "translateY(16px)" },
@@ -29,7 +29,7 @@ module.exports = {
         },
       },
       animation: {
-        "ambient-pulse": "ambientPulse 7s ease-in-out infinite",
+        "ambient-pulse": "ambientPulse 8s ease-in-out infinite",
         "fade-up":       "fadeSlideUp 0.6s ease-out forwards",
       },
     },

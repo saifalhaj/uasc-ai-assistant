@@ -23,11 +23,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               width={26}
               height={26}
               unoptimized
-              className="opacity-75"
+              className="opacity-70"
             />
             <div className="flex flex-col leading-none">
               <span className="text-[11px] font-semibold tracking-[0.18em] uppercase text-uasc-text">UASC</span>
-              <span className="text-[8px] tracking-widest uppercase text-uasc-sub opacity-60">Dubai Police</span>
+              <span className="text-[8px] tracking-widest uppercase text-uasc-sub opacity-55">Dubai Police</span>
             </div>
           </Link>
 
@@ -36,24 +36,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* System status */}
           <div className="flex items-center gap-1.5">
             <span className="block w-1.5 h-1.5 rounded-full bg-uasc-teal animate-pulse" />
-            <span className="text-[9px] tracking-[0.18em] uppercase text-uasc-sub opacity-70">
+            <span className="text-[9px] tracking-[0.18em] uppercase text-uasc-sub opacity-60">
               Systems Online
             </span>
           </div>
 
-          {/* Nav links */}
-          <div className="ml-auto flex items-center gap-8">
+          {/* Home button */}
+          <div className="ml-auto">
             <Link
-              href="/chat"
-              className="text-[11px] tracking-[0.18em] uppercase text-uasc-sub hover:text-uasc-text transition-colors duration-200"
+              href="/"
+              className="text-[11px] tracking-[0.18em] uppercase text-uasc-sub hover:text-uasc-text transition-colors duration-200 px-3 py-1.5 rounded border border-uasc-border hover:border-uasc-muted"
             >
-              Assistant
-            </Link>
-            <Link
-              href="/upload"
-              className="text-[11px] tracking-[0.18em] uppercase text-uasc-sub hover:text-uasc-text transition-colors duration-200"
-            >
-              Insight Management
+              Home
             </Link>
           </div>
         </nav>
