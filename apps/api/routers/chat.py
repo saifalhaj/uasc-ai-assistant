@@ -1,6 +1,6 @@
 """Chat / query routes."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from dependencies import Container, get_container
 from middleware.auth import AuthUser, get_current_user
@@ -15,8 +15,11 @@ async def chat(
     user: AuthUser = Depends(get_current_user),
     container: Container = Depends(get_container),
 ) -> AnswerEnvelope:
-    return await container.agent.query(
-        request=request,
-        user_id=user.id,
-        clearance=user.clearance,
-    )
+    try:
+        return await container.agent.query(
+            request=request,
+            user_id=user.id,
+            clearance=user.clearance,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
