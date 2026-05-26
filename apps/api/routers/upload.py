@@ -48,12 +48,15 @@ async def upload_document(
     now = datetime.now(timezone.utc)
 
     # 1. Store original file
-    upload_result = await container.object_store.upload(
-        bucket=_STORAGE_BUCKET,
-        key=storage_key,
-        data=raw,
-        content_type=content_type,
-    )
+    try:
+        upload_result = await container.object_store.upload(
+            bucket=_STORAGE_BUCKET,
+            key=storage_key,
+            data=raw,
+            content_type=content_type,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Storage upload failed: {exc}") from exc
 
     # 2. Register document in DB as queued
     doc_record = DocumentRecord(
@@ -70,7 +73,10 @@ async def upload_document(
         created_at=now,
         updated_at=now,
     )
-    await container.database.insert_document(doc_record)
+    try:
+        await container.database.insert_document(doc_record)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"DB insert failed: {exc}") from exc
 
     try:
         # 3. Parse
