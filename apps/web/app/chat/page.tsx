@@ -96,7 +96,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto px-6 py-6 space-y-6">
       <h1 className="text-xl font-semibold text-uasc-text tracking-wide">Ask the UASC Agent</h1>
 
       <form onSubmit={ask} className="flex gap-3">

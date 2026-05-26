@@ -3,6 +3,55 @@
 @tailwind utilities;
 
 body {
-  background-color: #111111;
-  color: #E0E0E0;
+  background-color: #05070A;
+  color: #C8D6E5;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #05070A; }
+::-webkit-scrollbar-thumb { background: #162030; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #00C9B1; }
+
+.glass-nav {
+  background: rgba(5, 7, 10, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-panel {
+  background: rgba(14, 20, 27, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 201, 177, 0.08);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.glass-card {
+  background: rgba(14, 20, 27, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(22, 32, 48, 0.9);
+}
+
+.btn-primary {
+  background: rgba(0, 201, 177, 0.08);
+  border: 1px solid rgba(0, 201, 177, 0.3);
+  color: #00C9B1;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.btn-primary:hover {
+  background: rgba(0, 201, 177, 0.14);
+  border-color: rgba(0, 201, 177, 0.52);
+  box-shadow: 0 0 22px rgba(0, 201, 177, 0.1);
+}
+
+.btn-secondary {
+  background: rgba(14, 20, 27, 0.4);
+  border: 1px solid rgba(200, 214, 229, 0.1);
+  color: #7A98B5;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-secondary:hover {
+  border-color: rgba(200, 214, 229, 0.22);
+  color: #C8D6E5;
 }

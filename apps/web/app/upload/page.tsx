@@ -76,7 +76,7 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto px-6 py-6">
       <h1 className="text-xl font-semibold text-uasc-text mb-6 tracking-wide">Upload Document</h1>
 
       {status === "done" && result ? (
