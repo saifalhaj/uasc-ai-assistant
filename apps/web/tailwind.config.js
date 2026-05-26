@@ -3,34 +3,55 @@ module.exports = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./lib/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
       colors: {
-        uasc: {
-          bg:     "#020406",
-          card:   "#070A0F",
-          border: "#0F1620",
-          muted:  "#6A8098",
-          sub:    "#95ADBF",
-          text:   "#DCE6F0",
-          teal:   "#C4D4E4",
-          navy:   "#0E1520",
-        },
+        // surfaces
+        'bg-base':     '#0a0d12',
+        'bg-deep':     '#0f1419',
+        'surf-1':      '#161b22',
+        'surf-2':      '#1c2128',
+        'surf-3':      '#232932',
+        // borders
+        'border-base': '#2a3038',
+        'border-hi':   '#3a4250',
+        'border-bri':  '#6e7681',
+        // text
+        'text-hi':     '#f0f3f6',
+        'text-mid':    '#b8c0c8',
+        'text-dim':    '#6e7681',
+        'text-faint':  '#4a5058',
+        // functional
+        'uasc-red':    '#d97570',
+        'uasc-amber':  '#d8a957',
+        'uasc-green':  '#7aae7a',
+      },
+      fontFamily: {
+        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
+        ar:   ['var(--font-ar)', 'system-ui', 'sans-serif'],
+      },
+      borderRadius: {
+        sm:      '3px',
+        DEFAULT: '4px',
+        md:      '4px',
+        lg:      '6px',
+      },
+      letterSpacing: {
+        wider:   '0.06em',
+        widest:  '0.1em',
       },
       keyframes: {
-        ambientPulse: {
-          "0%, 100%": { opacity: "1" },
-          "50%":       { opacity: "0.5" },
-        },
-        fadeSlideUp: {
-          "0%":   { opacity: "0", transform: "translateY(16px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
+        'pulse-soft': {
+          '0%':   { boxShadow: '0 0 0 0 rgba(122,174,122,0.6)' },
+          '70%':  { boxShadow: '0 0 0 5px rgba(122,174,122,0)' },
+          '100%': { boxShadow: '0 0 0 0 rgba(122,174,122,0)' },
         },
       },
       animation: {
-        "ambient-pulse": "ambientPulse 8s ease-in-out infinite",
-        "fade-up":       "fadeSlideUp 0.6s ease-out forwards",
+        'pulse-soft': 'pulse-soft 2.8s infinite',
       },
     },
   },
