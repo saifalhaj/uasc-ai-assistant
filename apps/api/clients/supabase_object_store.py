@@ -25,7 +25,7 @@ class SupabaseStorageStore(ObjectStore):
             file_options={"content-type": content_type, "upsert": "true"},
         )
 
-        public_url = self._client.storage.from_(bucket).get_public_url(key)
+        public_url = await self._client.storage.from_(bucket).get_public_url(key)
 
         return UploadResult(
             key=key,
@@ -34,7 +34,7 @@ class SupabaseStorageStore(ObjectStore):
         )
 
     async def get_public_url(self, bucket: str, key: str) -> str:
-        return self._client.storage.from_(bucket).get_public_url(key)
+        return await self._client.storage.from_(bucket).get_public_url(key)
 
     async def delete(self, bucket: str, key: str) -> None:
         await self._client.storage.from_(bucket).remove([key])

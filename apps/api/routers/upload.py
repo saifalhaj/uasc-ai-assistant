@@ -97,7 +97,7 @@ async def upload_document(
 
             for i, (text, vector) in enumerate(zip(batch, embed_result.vectors)):
                 chunk_idx = batch_start + i
-                chunk_id = f"{doc_id}__{chunk_idx}"
+                chunk_id = str(uuid.uuid5(uuid.UUID(doc_id), str(chunk_idx)))
 
                 meta = ChunkMetadata(
                     source_name=title,

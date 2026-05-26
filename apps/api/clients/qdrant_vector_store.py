@@ -7,6 +7,7 @@ from qdrant_client.models import (
     Filter,
     MatchValue,
     PointStruct,
+    QueryRequest,
     VectorParams,
 )
 
@@ -44,16 +45,16 @@ class QdrantCloudStore(VectorStore):
         filter: dict[str, Any] | None = None,
     ) -> list[SearchResult]:
         qdrant_filter = self._build_filter(filter) if filter else None
-        results = await self._client.search(
+        response = await self._client.query_points(
             collection_name=collection,
-            query_vector=query_vector,
+            query=query_vector,
             limit=top_k,
             query_filter=qdrant_filter,
             with_payload=True,
         )
         return [
             SearchResult(id=str(r.id), score=r.score, payload=r.payload or {})
-            for r in results
+            for r in response.points
         ]
 
     async def delete_by_payload_filter(
