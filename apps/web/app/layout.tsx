@@ -18,14 +18,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="relative z-10 grid grid-rows-[44px_1fr_28px] h-screen">
           <Topbar
             user={{ name: 'Operator', clearance: 'L2 · OPS' }}
-            crumbs={[{ label: 'UASC' }]}
+            crumbs={[]}
           />
           <main className="relative overflow-hidden">{children}</main>
           <Statusbar
-            version="1.0.5"
+            version={process.env.APP_VERSION || '0.1.0'}
             lastSync="live"
-            model="UASC-RAG-v3"
-            corpus="operational corpus"
+            model={`UASC-claude-sonnet-4-6`}
             screen="UASC"
           />
         </div>

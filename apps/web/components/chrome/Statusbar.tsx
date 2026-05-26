@@ -13,7 +13,6 @@ export function Statusbar({
   version,
   lastSync,
   model,
-  corpus,
   screen,
   tty = 'ops-room-1',
   net = 'nominal',
@@ -21,7 +20,6 @@ export function Statusbar({
   version: string;
   lastSync: string;
   model: string;
-  corpus: string;
   screen: string;
   tty?: string;
   net?: string;
@@ -37,7 +35,6 @@ export function Statusbar({
       <Seg label="v">{version}</Seg>
       <Seg label="sync">{lastSync}</Seg>
       <Seg label="model">{model}</Seg>
-      <Seg label="corpus">{corpus}</Seg>
       <span className="ml-auto flex gap-[18px]">
         <Seg label="screen">{screen}</Seg>
         <Seg label="tty">{tty}</Seg>

@@ -45,17 +45,9 @@ export function UploadForm({
 
   return (
     <section className="relative min-h-full overflow-auto px-5 pt-8 pb-16">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute bottom-16 right-[5%] font-ar text-[76px] tracking-wider opacity-[0.025] text-text-hi"
-        style={{ direction: 'rtl' }}
-      >
-        مركز أنظمة الطائرات المسيرة
-      </div>
-
       <div className="relative w-full max-w-[560px] mx-auto flex flex-col gap-3.5">
         <header>
-          <h2 className="text-[22px] font-medium text-text-hi m-0">Upload to corpus</h2>
+          <h2 className="text-[22px] font-medium text-text-hi m-0">Upload into Ops Intelligence Platform</h2>
           <div className="mt-1 font-mono text-[11px] text-text-dim tracking-[0.04em]">
             SOP · threat report · NOTAM · operational record
           </div>
