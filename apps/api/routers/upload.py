@@ -47,6 +47,11 @@ async def upload_document(
     tag_list = [t.strip() for t in tags.split(",") if t.strip()]
     now = datetime.now(timezone.utc)
 
+    # Derive display name from auth user email (Phase 2: use Entra ID display name)
+    uploader_display = user.email.split("@")[0].replace(".", " ").title()
+    # Map auth clearance (internal/restricted/public) → display role; TODO: enrich via Entra
+    clearance_display = f"L? · {user.clearance.upper()}"
+
     # 1. Store original file
     try:
         upload_result = await container.object_store.upload(
@@ -72,6 +77,9 @@ async def upload_document(
         chunk_count=0,
         created_at=now,
         updated_at=now,
+        size_bytes=len(raw),
+        uploader_name=uploader_display,
+        uploader_clearance=clearance_display,
     )
     try:
         await container.database.insert_document(doc_record)

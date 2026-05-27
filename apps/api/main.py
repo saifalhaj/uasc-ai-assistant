@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 load_dotenv()
 
 from dependencies import build_container
-from routers import chat_router, upload_router
+from routers import chat_router, documents_router, upload_router
 
 
 @asynccontextmanager
@@ -34,6 +34,7 @@ app.add_middleware(
 
 app.include_router(upload_router)
 app.include_router(chat_router)
+app.include_router(documents_router)
 
 
 @app.get("/health")

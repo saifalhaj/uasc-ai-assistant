@@ -20,9 +20,13 @@ export interface UploadPayload {
 export function UploadForm({
   onSubmit,
   onCancel,
+  hideHeader = false,
 }: {
   onSubmit: (payload: UploadPayload) => void | Promise<void>;
   onCancel?: () => void;
+  /** When true, suppresses the built-in header (title + subtitle).
+   *  Use this when the parent page renders its own header. */
+  hideHeader?: boolean;
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [classification, setClassification] = useState<Classification | null>('internal');
@@ -46,12 +50,14 @@ export function UploadForm({
   return (
     <section className="relative min-h-full overflow-auto px-5 pt-8 pb-16">
       <div className="relative w-full max-w-[560px] mx-auto flex flex-col gap-3.5">
-        <header>
-          <h2 className="text-[22px] font-medium text-text-hi m-0">Upload into Ops Intelligence Platform</h2>
-          <div className="mt-1 font-mono text-[11px] text-text-dim tracking-[0.04em]">
-            SOP · threat report · NOTAM · operational record
-          </div>
-        </header>
+        {!hideHeader && (
+          <header>
+            <h2 className="text-[22px] font-medium text-text-hi m-0">Upload into Ops Intelligence Platform</h2>
+            <div className="mt-1 font-mono text-[11px] text-text-dim tracking-[0.04em]">
+              SOP · threat report · NOTAM · operational record
+            </div>
+          </header>
+        )}
 
         <Dropzone onFile={setFile} />
 

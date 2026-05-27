@@ -1,11 +1,13 @@
-"use client";
+'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Label } from '@/components/ui/Label';
 import { Badge } from '@/components/ui/Badge';
 import { UploadForm, type UploadPayload } from '@/components/upload/UploadForm';
-import type { UploadResponse } from '@uasc/shared';
+import type { Document } from '@/lib/types';
+import type { UploadResponse as ApiUploadResponse } from '@uasc/shared';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -22,10 +24,58 @@ function toApiLanguage(lang: string): string {
   return lang; // 'en' and 'ar' are the same
 }
 
+const CLASS_PIP: Record<string, string> = {
+  restricted: 'bg-uasc-red',
+  internal:   'bg-uasc-amber',
+  public:     'bg-uasc-green',
+};
+
+// ── Library link + recent uploads strip ──────────────────────────────────────
+function LibraryStrip() {
+  const [docs, setDocs] = useState<Document[]>([]);
+  const [total, setTotal] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch(`${API_URL}/documents?limit=4&sort=uploadedAt&order=desc`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data) return;
+        const list: Document[] = Array.isArray(data) ? data : (data.documents ?? []);
+        setDocs(list);
+        setTotal(Array.isArray(data) ? list.length : (data.total ?? list.length));
+      })
+      .catch(() => {});
+  }, []);
+
+  return (
+    <div className="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-none">
+      {docs.map(doc => (
+        <Link
+          key={doc.id}
+          href={`/library?q=${encodeURIComponent(doc.id)}`}
+          className="flex-shrink-0 flex items-center gap-1.5 bg-bg-deep border border-border-base rounded-[3px] px-2.5 py-1 font-mono text-[11px] text-text-mid no-underline hover:border-border-hi hover:text-text-hi transition-all duration-120"
+        >
+          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${CLASS_PIP[doc.classification] ?? 'bg-text-dim'}`} />
+          <span className="truncate max-w-[180px]" title={doc.title}>{doc.title}</span>
+        </Link>
+      ))}
+      {docs.length > 0 && (
+        <Link
+          href="/library"
+          className="flex-shrink-0 font-mono text-[11px] text-text-dim no-underline hover:text-text-hi transition-colors duration-120 ml-auto whitespace-nowrap"
+        >
+          See all{total !== null ? ` (${total})` : ''} →
+        </Link>
+      )}
+    </div>
+  );
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
 export default function InsightManagementPage() {
   const [status, setStatus] = useState<'idle' | 'done' | 'error'>('idle');
-  const [result, setResult] = useState<UploadResponse | null>(null);
-  const [error, setError] = useState<{ code: string; message: string } | null>(null);
+  const [result, setResult] = useState<ApiUploadResponse | null>(null);
+  const [error, setError]   = useState<{ code: string; message: string } | null>(null);
 
   async function handleSubmit(payload: UploadPayload) {
     setError(null);
@@ -87,7 +137,7 @@ export default function InsightManagementPage() {
 
           <div className="flex gap-2.5">
             <Button variant="primary" onClick={reset}>Import another</Button>
-            <Button variant="secondary" onClick={() => (window.location.href = '/chat')}>
+            <Button variant="secondary" onClick={() => { window.location.href = '/chat'; }}>
               Open assistant
             </Button>
           </div>
@@ -97,17 +147,45 @@ export default function InsightManagementPage() {
   }
 
   return (
-    <UploadForm
-      onSubmit={async (payload) => {
-        try {
-          await handleSubmit(payload);
-        } catch (err) {
-          handleError(err);
-          throw err; // let UploadForm reset its submitting state
-        }
-      }}
-      onCancel={() => (window.location.href = '/')}
-    />
+    <section className="relative min-h-full overflow-auto px-5 pt-8 pb-16">
+      <div className="relative w-full max-w-[560px] mx-auto flex flex-col gap-3.5">
+
+        {/* ── Header with library link pill ─────────────────────────────── */}
+        <header className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-[22px] font-medium text-text-hi m-0">
+              Upload into Ops Intelligence Platform
+            </h2>
+            <div className="mt-1 font-mono text-[11px] text-text-dim tracking-[0.04em]">
+              SOP · threat report · NOTAM · operational record
+            </div>
+          </div>
+          <Link
+            href="/library"
+            className="flex-shrink-0 flex items-center gap-1.5 border border-border-base bg-bg-deep rounded-[3px] px-2.5 py-1.5 font-mono text-[11px] text-text-dim no-underline hover:border-border-hi hover:text-text-hi transition-all duration-120 mt-1 whitespace-nowrap"
+          >
+            ↗ library
+          </Link>
+        </header>
+
+        {/* ── Recent uploads strip ─────────────────────────────────────── */}
+        <LibraryStrip />
+
+        {/* ── Form (no header — moved above) ───────────────────────────── */}
+        <UploadForm
+          onSubmit={async (payload) => {
+            try {
+              await handleSubmit(payload);
+            } catch (err) {
+              handleError(err);
+              throw err;
+            }
+          }}
+          onCancel={() => { window.location.href = '/'; }}
+          hideHeader
+        />
+      </div>
+    </section>
   );
 }
 

@@ -4,6 +4,38 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 
+# ── Library schemas ──────────────────────────────────────────────────────────
+
+class UploaderInfo(BaseModel):
+    name: str
+    clearance: str  # e.g. "L4 · OPS-LEAD"
+
+
+class DocumentOut(BaseModel):
+    id: str
+    title: str
+    extension: str          # PDF | DOCX | MD | XLSX | TXT
+    sizeBytes: int
+    pages: int | None = None
+    classification: str
+    sourceTier: str         # authoritative | reference | external
+    language: str
+    tags: list[str]
+    uploader: UploaderInfo
+    uploadedAt: str         # ISO 8601
+    referenceCount: int
+    referenceHistory: list[int]
+    lastReferencedAt: str | None
+    status: str
+
+
+class DocumentListResponse(BaseModel):
+    documents: list[DocumentOut]
+    total: int
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+
 class ChunkMetadata(BaseModel):
     """Full metadata schema on every chunk. Null fields reserved for future phases."""
     source_name: str
