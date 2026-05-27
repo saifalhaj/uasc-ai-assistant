@@ -9,6 +9,13 @@ const GUEST_USER = { name: '—', clearance: '—' };
 
 function getCrumbs(pathname: string): Crumb[] {
   if (pathname.startsWith('/login')) return [{ label: 'Authentication' }];
+  if (pathname.startsWith('/library/dashboard')) {
+    return [
+      { label: 'Insight Management', href: '/upload' },
+      { label: 'Library', href: '/library' },
+      { label: 'Dashboard' },
+    ];
+  }
   if (pathname.startsWith('/library')) {
     return [
       { label: 'Insight Management', href: '/upload' },

@@ -24,12 +24,12 @@ export function LandingHero({
   return (
     <section className="grid place-items-center min-h-full overflow-auto px-5 py-10">
       <div className="w-full max-w-[980px] flex flex-col items-center gap-7">
-        <div className="w-[240px]">
+        <div className="w-[400px]">
           <Image
             src={logoSrc}
             alt="UASC"
-            width={480}
-            height={240}
+            width={800}
+            height={400}
             className="w-full h-auto block"
             priority
             unoptimized

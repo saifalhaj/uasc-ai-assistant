@@ -136,16 +136,28 @@ export default function LibraryPage() {
               {loading ? '…' : `${total} documents`} · indexed · sync live
             </div>
           </div>
-          {canUpload && (
-            <div className="ml-auto flex gap-2">
+          <div className="ml-auto flex items-center gap-2">
+            {/* View tabs */}
+            <div className="flex border border-border-base rounded-sm overflow-hidden">
+              <Link
+                href="/library/dashboard"
+                className="px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.06em] no-underline text-text-dim bg-bg-deep border-r border-border-base hover:text-text-mid hover:bg-surf-1 transition-all duration-120"
+              >
+                Dashboard
+              </Link>
+              <span className="px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.06em] text-text-hi bg-surf-1">
+                Documents
+              </span>
+            </div>
+            {canUpload && (
               <Link
                 href="/upload"
                 className="inline-flex items-center gap-2 px-3.5 py-2 border border-text-hi bg-text-hi text-bg-base text-[13px] font-medium rounded no-underline transition-all duration-120 hover:bg-white hover:border-white"
               >
                 + Upload new
               </Link>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* ── Toolbar ────────────────────────────────────────────────────── */}
