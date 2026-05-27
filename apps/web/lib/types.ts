@@ -2,6 +2,9 @@ export type Classification = 'restricted' | 'internal' | 'public';
 
 export type SourceTier = 'authoritative' | 'reference' | 'external';
 
+/** UI-facing document type shown in the upload form. Mapped to SourceTier internally. */
+export type DocType = 'law-regulation' | 'sop' | 'report';
+
 export type Risk = 'low' | 'elevated' | 'high';
 
 export type EscalationFlag = 'none' | 'flagged' | 'escalated';

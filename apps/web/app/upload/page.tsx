@@ -10,11 +10,15 @@ import type { UploadResponse as ApiUploadResponse } from '@uasc/shared';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// Map UI SourceTier → API source_tier
-function toApiSourceTier(tier: string): string {
-  if (tier === 'reference') return 'vetted';
-  if (tier === 'external') return 'open';
-  return tier;
+// Map UI DocType → API source_tier
+function toApiSourceTier(docType: string): string {
+  if (docType === 'law-regulation') return 'open';
+  if (docType === 'sop')            return 'authoritative';
+  if (docType === 'report')         return 'vetted';
+  // legacy pass-through
+  if (docType === 'reference')      return 'vetted';
+  if (docType === 'external')       return 'open';
+  return docType;
 }
 
 // Map UI Language → API language
@@ -34,7 +38,7 @@ export default function InsightManagementPage() {
     form.append('file', payload.file);
     form.append('title', payload.file.name);
     form.append('classification', payload.classification);
-    form.append('source_tier', toApiSourceTier(payload.sourceTier));
+    form.append('source_tier', toApiSourceTier(payload.docType));
     form.append('language', toApiLanguage(payload.language));
     form.append('tags', payload.tags.join(','));
 
@@ -104,12 +108,9 @@ export default function InsightManagementPage() {
         {/* ── Header with library link pill ─────────────────────────────── */}
         <header className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-[22px] font-medium text-text-hi m-0">
-              Upload into Ops Intelligence Platform
+            <h2 className="text-[22px] font-medium text-text-hi m-0 uppercase tracking-[0.04em]">
+              UPLOAD INTO OPS INTELLIGENCE PLATFORM
             </h2>
-            <div className="mt-1 font-mono text-[11px] text-text-dim tracking-[0.04em]">
-              SOP · threat report · NOTAM · operational record
-            </div>
           </div>
           <Link
             href="/library"

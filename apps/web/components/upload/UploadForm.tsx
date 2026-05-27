@@ -7,12 +7,12 @@ import { Label } from '@/components/ui/Label';
 import { ClassificationPicker } from './ClassificationPicker';
 import { Dropzone } from './Dropzone';
 import { TagInput } from './TagInput';
-import type { Classification, Language, SourceTier } from '@/lib/types';
+import type { Classification, DocType, Language } from '@/lib/types';
 
 export interface UploadPayload {
   file: File;
   classification: Classification;
-  sourceTier: SourceTier;
+  docType: DocType;
   language: Language;
   tags: string[];
 }
@@ -28,12 +28,12 @@ export function UploadForm({
    *  Use this when the parent page renders its own header. */
   hideHeader?: boolean;
 }) {
-  const [file, setFile] = useState<File | null>(null);
+  const [file, setFile]               = useState<File | null>(null);
   const [classification, setClassification] = useState<Classification | null>('internal');
-  const [sourceTier, setSourceTier] = useState<SourceTier>('authoritative');
-  const [language, setLanguage] = useState<Language>('en');
-  const [tags, setTags] = useState<string[]>([]);
-  const [submitting, setSubmitting] = useState(false);
+  const [docType, setDocType]         = useState<DocType>('sop');
+  const [language, setLanguage]       = useState<Language>('en');
+  const [tags, setTags]               = useState<string[]>([]);
+  const [submitting, setSubmitting]   = useState(false);
 
   const ready = file !== null && classification !== null;
 
@@ -41,7 +41,7 @@ export function UploadForm({
     if (!ready) return;
     setSubmitting(true);
     try {
-      await onSubmit({ file: file!, classification: classification!, sourceTier, language, tags });
+      await onSubmit({ file: file!, classification: classification!, docType, language, tags });
     } finally {
       setSubmitting(false);
     }
@@ -52,32 +52,28 @@ export function UploadForm({
       <div className="relative w-full max-w-[560px] mx-auto flex flex-col gap-3.5">
         {!hideHeader && (
           <header>
-            <h2 className="text-[22px] font-medium text-text-hi m-0">Upload into Ops Intelligence Platform</h2>
-            <div className="mt-1 font-mono text-[11px] text-text-dim tracking-[0.04em]">
-              SOP · threat report · NOTAM · operational record
-            </div>
+            <h2 className="text-[22px] font-medium text-text-hi m-0 uppercase tracking-[0.04em]">
+              UPLOAD INTO OPS INTELLIGENCE PLATFORM
+            </h2>
           </header>
         )}
 
         <Dropzone onFile={setFile} />
 
-        <Field
-          label={<>Classification <span className="text-uasc-red ml-1">*</span></>}
-          hint="Cannot be changed after submission"
-        >
+        <Field label={<>Classification <span className="text-uasc-red ml-1">*</span></>}>
           <ClassificationPicker value={classification} onChange={setClassification} />
         </Field>
 
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Source tier">
+          <Field label="Type of doc">
             <select
-              value={sourceTier}
-              onChange={e => setSourceTier(e.target.value as SourceTier)}
+              value={docType}
+              onChange={e => setDocType(e.target.value as DocType)}
               className={selectClass}
             >
-              <option value="authoritative">Authoritative</option>
-              <option value="reference">Reference</option>
-              <option value="external">External / public</option>
+              <option value="law-regulation">Law &amp; Regulation</option>
+              <option value="sop">SOP</option>
+              <option value="report">Report</option>
             </select>
           </Field>
           <Field label="Language">
@@ -117,21 +113,14 @@ export function UploadForm({
 
 function Field({
   label,
-  hint,
   children,
 }: {
   label: React.ReactNode;
-  hint?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="flex items-center justify-between">
-        <Label>{label}</Label>
-        {hint && (
-          <span className="font-mono text-[10px] text-text-faint tracking-[0.04em]">{hint}</span>
-        )}
-      </div>
+      <Label>{label}</Label>
       {children}
     </div>
   );
