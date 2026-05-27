@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 
 // ── Role redirect map ─────────────────────────────────────────────────────────
 const ROLE_REDIRECT: Record<string, string> = {
@@ -47,7 +48,12 @@ function LoginForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError('AUTH-403 · Invalid station ID or passphrase.');
+        const body = await res.json().catch(() => ({}));
+        if (res.status >= 500) {
+          setError(`AUTH-500 · Server error. Check Vercel env vars (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY).`);
+        } else {
+          setError(body.detail ?? 'AUTH-403 · Invalid station ID or passphrase.');
+        }
         return;
       }
 
@@ -72,9 +78,17 @@ function LoginForm() {
         className="relative z-10 w-full max-w-[380px] mx-4 bg-surf-1 border border-border-base rounded shadow-[0_32px_80px_rgba(0,0,0,0.7)]"
         style={{ padding: '36px 36px 30px' }}
       >
-        {/* Seal block */}
+        {/* Logo block */}
         <div className="flex flex-col items-center gap-3 pb-5 mb-5 border-b border-border-base">
-          <Seal />
+          <Image
+            src="/UASCLogoWhite.png"
+            alt="UASC"
+            width={160}
+            height={80}
+            className="h-auto"
+            priority
+            unoptimized
+          />
           <div className="text-center">
             <div className="text-[15px] font-medium text-text-hi tracking-[-0.01em]">
               UASC Operational Intelligence
