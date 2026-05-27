@@ -23,11 +23,10 @@ export default function LoginPage() {
 function LoginForm() {
   const router       = useRouter();
   const params       = useSearchParams();
-  const [suffix, setSuffix]       = useState('');
+  const [suffix, setSuffix]         = useState('');
   const [passphrase, setPassphrase] = useState('');
-  const [showPass, setShowPass]   = useState(false);
-  const [error, setError]         = useState('');
-  const [attempts, setAttempts]   = useState(5);
+  const [showPass, setShowPass]     = useState(false);
+  const [error, setError]           = useState('');
   const [submitting, setSubmitting] = useState(false);
   const suffixRef = useRef<HTMLInputElement>(null);
 
@@ -48,13 +47,7 @@ function LoginForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        const remaining = attempts - 1;
-        setAttempts(remaining);
-        if (remaining <= 0) {
-          setError(`AUTH-403 · Too many failed attempts. Contact your station lead.`);
-        } else {
-          setError(`AUTH-403 · Invalid station ID or passphrase. ${remaining} attempt${remaining !== 1 ? 's' : ''} remain before lockout.`);
-        }
+        setError('AUTH-403 · Invalid station ID or passphrase.');
         return;
       }
 
@@ -111,8 +104,7 @@ function LoginForm() {
                 onChange={e => setSuffix(e.target.value)}
                 placeholder="L02"
                 maxLength={8}
-                disabled={attempts <= 0}
-                className="flex-1 bg-transparent border-none outline-none font-mono text-[13px] text-text-hi tracking-[0.02em] pr-3 py-2 placeholder-text-faint disabled:opacity-50"
+                className="flex-1 bg-transparent border-none outline-none font-mono text-[13px] text-text-hi tracking-[0.02em] pr-3 py-2 placeholder-text-faint"
               />
             </div>
           </div>
@@ -134,8 +126,7 @@ function LoginForm() {
                 value={passphrase}
                 onChange={e => setPassphrase(e.target.value)}
                 placeholder="passphrase"
-                disabled={attempts <= 0}
-                className="flex-1 bg-transparent border-none outline-none font-mono text-[13px] text-text-hi tracking-[0.02em] px-3 py-2 placeholder-text-faint disabled:opacity-50"
+                className="flex-1 bg-transparent border-none outline-none font-mono text-[13px] text-text-hi tracking-[0.02em] px-3 py-2 placeholder-text-faint"
               />
               <button
                 type="button"
@@ -158,7 +149,7 @@ function LoginForm() {
         {/* Submit */}
         <button
           type="submit"
-          disabled={!suffix || !passphrase || submitting || attempts <= 0}
+          disabled={!suffix || !passphrase || submitting}
           className="mt-4 w-full flex items-center justify-between bg-text-hi text-bg-base font-medium text-[13px] px-4 py-[11px] rounded border border-text-hi transition-all duration-120 hover:bg-white hover:border-white disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
         >
           <span>{submitting ? 'Authenticating…' : 'Sign in to UASC'}</span>
