@@ -17,6 +17,7 @@ ALTER TABLE documents
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import RedirectResponse
 
 from agents.rag_agent import _COLLECTION
 from dependencies import Container, get_container
@@ -98,6 +99,21 @@ async def list_documents(
         documents=[_doc_to_out(r) for r in records],
         total=total,
     )
+
+
+@router.get("/{doc_id}/download")
+async def download_document(
+    doc_id: str,
+    user: AuthUser = Depends(get_current_user),
+    container: Container = Depends(get_container),
+) -> RedirectResponse:
+    """Redirect to the document's public storage URL so the browser can open it."""
+    doc = await container.database.get_document(doc_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    if not doc.storage_url:
+        raise HTTPException(status_code=404, detail="Document has no accessible URL")
+    return RedirectResponse(url=doc.storage_url, status_code=307)
 
 
 @router.delete("/{doc_id}", status_code=204)

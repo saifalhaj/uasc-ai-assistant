@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Label } from '@/components/ui/Label';
 import { Badge } from '@/components/ui/Badge';
 import { UploadForm, type UploadPayload } from '@/components/upload/UploadForm';
-import type { Document } from '@/lib/types';
 import type { UploadResponse as ApiUploadResponse } from '@uasc/shared';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -15,63 +14,15 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 function toApiSourceTier(tier: string): string {
   if (tier === 'reference') return 'vetted';
   if (tier === 'external') return 'open';
-  return tier; // 'authoritative' is the same
+  return tier;
 }
 
 // Map UI Language → API language
 function toApiLanguage(lang: string): string {
   if (lang === 'bilingual') return 'mixed';
-  return lang; // 'en' and 'ar' are the same
+  return lang;
 }
 
-const CLASS_PIP: Record<string, string> = {
-  restricted: 'bg-uasc-red',
-  internal:   'bg-uasc-amber',
-  public:     'bg-uasc-green',
-};
-
-// ── Library link + recent uploads strip ──────────────────────────────────────
-function LibraryStrip() {
-  const [docs, setDocs] = useState<Document[]>([]);
-  const [total, setTotal] = useState<number | null>(null);
-
-  useEffect(() => {
-    fetch(`${API_URL}/documents?limit=4&sort=uploadedAt&order=desc`)
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (!data) return;
-        const list: Document[] = Array.isArray(data) ? data : (data.documents ?? []);
-        setDocs(list);
-        setTotal(Array.isArray(data) ? list.length : (data.total ?? list.length));
-      })
-      .catch(() => {});
-  }, []);
-
-  return (
-    <div className="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-none">
-      {docs.map(doc => (
-        <Link
-          key={doc.id}
-          href={`/library?q=${encodeURIComponent(doc.id)}`}
-          className="flex-shrink-0 flex items-center gap-1.5 bg-bg-deep border border-border-base rounded-[3px] px-2.5 py-1 font-mono text-[11px] text-text-mid no-underline hover:border-border-hi hover:text-text-hi transition-all duration-120"
-        >
-          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${CLASS_PIP[doc.classification] ?? 'bg-text-dim'}`} />
-          <span className="truncate max-w-[180px]" title={doc.title}>{doc.title}</span>
-        </Link>
-      ))}
-      {docs.length > 0 && (
-        <Link
-          href="/library"
-          className="flex-shrink-0 font-mono text-[11px] text-text-dim no-underline hover:text-text-hi transition-colors duration-120 ml-auto whitespace-nowrap"
-        >
-          See all{total !== null ? ` (${total})` : ''} →
-        </Link>
-      )}
-    </div>
-  );
-}
-
-// ── Main page ─────────────────────────────────────────────────────────────────
 export default function InsightManagementPage() {
   const [status, setStatus] = useState<'idle' | 'done' | 'error'>('idle');
   const [result, setResult] = useState<ApiUploadResponse | null>(null);
@@ -168,10 +119,7 @@ export default function InsightManagementPage() {
           </Link>
         </header>
 
-        {/* ── Recent uploads strip ─────────────────────────────────────── */}
-        <LibraryStrip />
-
-        {/* ── Form (no header — moved above) ───────────────────────────── */}
+        {/* ── Upload form ───────────────────────────────────────────────── */}
         <UploadForm
           onSubmit={async (payload) => {
             try {

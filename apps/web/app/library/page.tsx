@@ -110,8 +110,8 @@ export default function LibraryPage() {
   }
 
   function handleView(id: string) {
-    // In production: open document viewer
-    window.open(`${API_URL}/documents/${id}/view`, '_blank');
+    // Redirects to the document's public storage URL via the API
+    window.open(`${API_URL}/documents/${id}/download`, '_blank');
   }
 
   // ── render ─────────────────────────────────────────────────────────────────

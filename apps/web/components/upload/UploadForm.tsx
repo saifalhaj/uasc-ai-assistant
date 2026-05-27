@@ -107,7 +107,7 @@ export function UploadForm({
             disabled={!ready || submitting}
             onClick={handleSubmit}
           >
-            {submitting ? 'Submitting…' : 'Submit to corpus'}
+            {submitting ? 'Submitting…' : 'Submit to intelligence database'}
           </Button>
         </div>
       </div>
