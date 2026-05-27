@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 // ── Role redirect map ─────────────────────────────────────────────────────────
@@ -10,8 +10,17 @@ const ROLE_REDIRECT: Record<string, string> = {
   L2: '/',
 };
 
-// ── Login page ────────────────────────────────────────────────────────────────
+// ── Default export wraps inner form in Suspense (required for useSearchParams) ─
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+// ── Inner form component (uses useSearchParams) ───────────────────────────────
+function LoginForm() {
   const router       = useRouter();
   const params       = useSearchParams();
   const [suffix, setSuffix]       = useState('');
@@ -172,7 +181,7 @@ export default function LoginPage() {
   );
 }
 
-// ── Seal component (CSS-only geometric seal) ──────────────────────────────────
+// ── Seal component (CSS-only geometric seal) ─────────────────────────────────
 function Seal() {
   return (
     <div
