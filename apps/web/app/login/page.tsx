@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 
 // ── Role redirect map ─────────────────────────────────────────────────────────
@@ -22,8 +22,7 @@ export default function LoginPage() {
 
 // ── Inner form component (uses useSearchParams) ───────────────────────────────
 function LoginForm() {
-  const router       = useRouter();
-  const params       = useSearchParams();
+  const params = useSearchParams();
   const [suffix, setSuffix]         = useState('');
   const [passphrase, setPassphrase] = useState('');
   const [showPass, setShowPass]     = useState(false);
@@ -59,7 +58,8 @@ function LoginForm() {
 
       const level: string = data.user?.level ?? 'L2';
       const dest = params.get('from') || ROLE_REDIRECT[level] || '/';
-      router.replace(dest);
+      // Full page load so the middleware sees the new session cookie
+      window.location.href = dest;
     } catch {
       setError('AUTH-500 · Network error. Check your connection and try again.');
     } finally {
