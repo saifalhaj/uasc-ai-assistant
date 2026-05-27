@@ -81,8 +81,7 @@ export async function getSessionUser(sessionId: string): Promise<DbUser | null> 
     .eq('id', sessionId)
     .gt('expires_at', now)
     .single();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return ((data as any)?.users as DbUser) ?? null;
+  return ((data as Record<string, unknown>)?.users as DbUser) ?? null;
 }
 
 export async function deleteSession(sessionId: string): Promise<void> {
