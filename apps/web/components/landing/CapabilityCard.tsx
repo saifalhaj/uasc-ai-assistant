@@ -12,10 +12,10 @@ export interface CapabilityCardProps {
 }
 
 const categoryTone: Record<CapabilityCategory, React.ComponentProps<typeof Label>['tone']> = {
-  OPS:  'dim',
+  OPS:  'green',
   RISK: 'red',
-  SOP:  'dim',
-  TECH: 'dim',
+  TECH: 'amber',
+  SOP:  'hi',
 };
 
 export function CapabilityCard({ category, title, description, href }: CapabilityCardProps) {
