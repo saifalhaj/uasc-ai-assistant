@@ -130,9 +130,6 @@ export default function LibraryPage() {
             </div>
           </div>
           <div className="ml-auto flex gap-2">
-            <button className="inline-flex items-center gap-2 px-3.5 py-2 border border-border-bri bg-transparent text-text-hi text-[13px] font-medium rounded cursor-pointer transition-all duration-120 hover:bg-[rgba(240,243,246,0.05)] hover:border-text-hi">
-              Export manifest ↓
-            </button>
             <Link
               href="/upload"
               className="inline-flex items-center gap-2 px-3.5 py-2 border border-text-hi bg-text-hi text-bg-base text-[13px] font-medium rounded no-underline transition-all duration-120 hover:bg-white hover:border-white"
