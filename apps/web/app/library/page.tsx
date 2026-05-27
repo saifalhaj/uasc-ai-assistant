@@ -6,10 +6,17 @@ import type { Document } from '@/lib/types';
 import { DocumentTable, type SortKey } from '@/components/library/DocumentTable';
 import { LibraryToolbar } from '@/components/library/LibraryToolbar';
 import { DeleteConfirmModal } from '@/components/library/DeleteConfirmModal';
+import { useAuth, hasLevel } from '@/app/AuthProvider';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function LibraryPage() {
+  const { user } = useAuth();
+  // Only L4 users can delete documents
+  const canDelete = hasLevel(user, 'L4');
+  // Only L3+ users can upload
+  const canUpload = hasLevel(user, 'L3');
+
   const [documents, setDocuments]   = useState<Document[]>([]);
   const [total, setTotal]           = useState(0);
   const [loading, setLoading]       = useState(true);
@@ -129,14 +136,16 @@ export default function LibraryPage() {
               {loading ? '…' : `${total} documents`} · indexed · sync live
             </div>
           </div>
-          <div className="ml-auto flex gap-2">
-            <Link
-              href="/upload"
-              className="inline-flex items-center gap-2 px-3.5 py-2 border border-text-hi bg-text-hi text-bg-base text-[13px] font-medium rounded no-underline transition-all duration-120 hover:bg-white hover:border-white"
-            >
-              + Upload new
-            </Link>
-          </div>
+          {canUpload && (
+            <div className="ml-auto flex gap-2">
+              <Link
+                href="/upload"
+                className="inline-flex items-center gap-2 px-3.5 py-2 border border-text-hi bg-text-hi text-bg-base text-[13px] font-medium rounded no-underline transition-all duration-120 hover:bg-white hover:border-white"
+              >
+                + Upload new
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* ── Toolbar ────────────────────────────────────────────────────── */}
@@ -160,6 +169,7 @@ export default function LibraryPage() {
             documents={documents}
             sort={sort}
             order={order}
+            canDelete={canDelete}
             onSort={handleSort}
             onDelete={(id, title) => setDeleteTarget({ id, title })}
             onView={handleView}

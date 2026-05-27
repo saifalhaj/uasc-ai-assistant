@@ -5,6 +5,18 @@ from typing import Any
 
 
 @dataclass
+class UserRecord:
+    id: str
+    station_id: str
+    password_hash: str
+    password_salt: str
+    level: str            # 'L2' | 'L3' | 'L4'
+    display_name: str
+    clearance_label: str  # e.g. 'L4 · OPS-LEAD'
+    created_at: datetime | None = None
+
+
+@dataclass
 class DocumentRecord:
     id: str
     title: str
@@ -58,6 +70,33 @@ class Database(ABC):
     Future: AzurePostgresDB.
     """
 
+    # ── Users & Sessions ───────────────────────────────────────────────────
+
+    @abstractmethod
+    async def get_user_by_station(self, station_id: str) -> UserRecord | None:
+        pass
+
+    @abstractmethod
+    async def create_user(self, user: UserRecord) -> None:
+        pass
+
+    @abstractmethod
+    async def create_session(
+        self, session_id: str, user_id: str, expires_at: datetime
+    ) -> None:
+        pass
+
+    @abstractmethod
+    async def get_session_user(self, session_id: str) -> UserRecord | None:
+        """Return the user linked to session_id if not expired, else None."""
+        pass
+
+    @abstractmethod
+    async def delete_session(self, session_id: str) -> None:
+        pass
+
+    # ── Documents ─────────────────────────────────────────────────────────
+
     @abstractmethod
     async def insert_document(self, doc: DocumentRecord) -> DocumentRecord:
         pass
@@ -83,18 +122,17 @@ class Database(ABC):
         limit: int = 200,
         offset: int = 0,
     ) -> tuple[list[DocumentRecord], int]:
-        """Return (records, total_count) matching the given filters."""
         pass
 
     @abstractmethod
     async def delete_document(self, doc_id: str) -> bool:
-        """Hard-delete the document row. Returns True if a row was deleted."""
         pass
 
     @abstractmethod
     async def increment_reference(self, doc_id: str) -> None:
-        """Increment referenceCount and update lastReferencedAt + referenceHistory."""
         pass
+
+    # ── Chunks / Audit ────────────────────────────────────────────────────
 
     @abstractmethod
     async def insert_chunk(self, chunk: ChunkRecord) -> ChunkRecord:
@@ -108,5 +146,4 @@ class Database(ABC):
     async def write_action_audit(
         self, actor_id: str, clearance: str, action: str, target: str
     ) -> None:
-        """Write a non-chat action (e.g. document.delete) to the existing audit_log table."""
         pass

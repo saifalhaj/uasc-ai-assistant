@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Label } from '@/components/ui/Label';
 import { Badge } from '@/components/ui/Badge';
 import { UploadForm, type UploadPayload } from '@/components/upload/UploadForm';
+import { useAuth, hasLevel } from '@/app/AuthProvider';
 import type { UploadResponse as ApiUploadResponse } from '@uasc/shared';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -28,9 +30,22 @@ function toApiLanguage(lang: string): string {
 }
 
 export default function InsightManagementPage() {
+  const router = useRouter();
+  const { user, loading } = useAuth();
+
+  // Redirect L2 users — they cannot upload
+  useEffect(() => {
+    if (!loading && user && !hasLevel(user, 'L3')) {
+      router.replace('/');
+    }
+  }, [loading, user, router]);
+
   const [status, setStatus] = useState<'idle' | 'done' | 'error'>('idle');
   const [result, setResult] = useState<ApiUploadResponse | null>(null);
   const [error, setError]   = useState<{ code: string; message: string } | null>(null);
+
+  // Render nothing while auth resolves or redirect is pending
+  if (loading || (user && !hasLevel(user, 'L3'))) return null;
 
   async function handleSubmit(payload: UploadPayload) {
     setError(null);

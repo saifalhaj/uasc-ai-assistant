@@ -1,10 +1,18 @@
+'use client';
+
+import { useAuth } from './AuthProvider';
 import { LandingHero } from '@/components/landing/LandingHero';
 
 export default function Home() {
+  const { user, loading } = useAuth();
+
+  // L3+ can access Insight Management (upload + library)
+  const canManageInsights = !loading && !!user && user.level !== 'L2';
+
   return (
     <LandingHero
       primary={{ label: 'Launch Assistant', href: '/chat' }}
-      secondary={{ label: 'Insight Management', href: '/upload' }}
+      secondary={canManageInsights ? { label: 'Insight Management', href: '/upload' } : undefined}
       capabilities={[
         {
           category: 'OPS',

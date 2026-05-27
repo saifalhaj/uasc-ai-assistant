@@ -2,13 +2,33 @@
 
 Required DB migration (run once in Supabase SQL editor):
 ─────────────────────────────────────────────────────────
+-- Users & Sessions
+CREATE TABLE IF NOT EXISTS users (
+  id                TEXT PRIMARY KEY,
+  station_id        TEXT UNIQUE NOT NULL,
+  password_hash     TEXT NOT NULL,
+  password_salt     TEXT NOT NULL,
+  level             TEXT NOT NULL,
+  display_name      TEXT NOT NULL,
+  clearance_label   TEXT NOT NULL,
+  created_at        TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS sessions (
+  id          TEXT PRIMARY KEY,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  expires_at  TIMESTAMPTZ NOT NULL,
+  created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Library fields added to documents
 ALTER TABLE documents
-  ADD COLUMN IF NOT EXISTS size_bytes        INTEGER     DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS pages             INTEGER,
-  ADD COLUMN IF NOT EXISTS uploader_name     TEXT        DEFAULT 'System',
-  ADD COLUMN IF NOT EXISTS uploader_clearance TEXT       DEFAULT 'L?',
-  ADD COLUMN IF NOT EXISTS reference_count   INTEGER     DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS reference_history INTEGER[]   DEFAULT ARRAY[0,0,0,0,0,0,0,0,0,0],
+  ADD COLUMN IF NOT EXISTS size_bytes         INTEGER      DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS pages              INTEGER,
+  ADD COLUMN IF NOT EXISTS uploader_name      TEXT         DEFAULT 'System',
+  ADD COLUMN IF NOT EXISTS uploader_clearance TEXT         DEFAULT 'L?',
+  ADD COLUMN IF NOT EXISTS reference_count    INTEGER      DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS reference_history  INTEGER[]    DEFAULT ARRAY[0,0,0,0,0,0,0,0,0,0],
   ADD COLUMN IF NOT EXISTS last_referenced_at TIMESTAMPTZ;
 ─────────────────────────────────────────────────────────
 """
@@ -18,11 +38,18 @@ from datetime import datetime, timezone
 
 from supabase import AsyncClient
 
-from interfaces.database import AuditEntry, ChunkRecord, Database, DocumentRecord
+from interfaces.database import (
+    AuditEntry,
+    ChunkRecord,
+    Database,
+    DocumentRecord,
+    UserRecord,
+)
 
+
+# ── helpers ────────────────────────────────────────────────────────────────────
 
 def _row_to_doc(row: dict) -> DocumentRecord:
-    """Convert a Supabase row dict → DocumentRecord, gracefully handling missing columns."""
     ref_hist = row.get("reference_history") or [0] * 10
     if not isinstance(ref_hist, list):
         ref_hist = [0] * 10
@@ -58,11 +85,80 @@ def _row_to_doc(row: dict) -> DocumentRecord:
     )
 
 
+def _row_to_user(row: dict) -> UserRecord:
+    return UserRecord(
+        id=row["id"],
+        station_id=row["station_id"],
+        password_hash=row["password_hash"],
+        password_salt=row["password_salt"],
+        level=row["level"],
+        display_name=row["display_name"],
+        clearance_label=row["clearance_label"],
+        created_at=datetime.fromisoformat(row["created_at"]) if row.get("created_at") else None,
+    )
+
+
 class SupabasePostgresDB(Database):
     def __init__(self, client: AsyncClient) -> None:
         self._db = client
 
-    # ── insert / update ────────────────────────────────────────────────────
+    # ── Users & Sessions ───────────────────────────────────────────────────────
+
+    async def get_user_by_station(self, station_id: str) -> UserRecord | None:
+        result = await (
+            self._db.table("users")
+            .select("*")
+            .eq("station_id", station_id)
+            .limit(1)
+            .execute()
+        )
+        if not result.data:
+            return None
+        return _row_to_user(result.data[0])
+
+    async def create_user(self, user: UserRecord) -> None:
+        row = {
+            "id":             user.id,
+            "station_id":     user.station_id,
+            "password_hash":  user.password_hash,
+            "password_salt":  user.password_salt,
+            "level":          user.level,
+            "display_name":   user.display_name,
+            "clearance_label": user.clearance_label,
+        }
+        await self._db.table("users").insert(row).execute()
+
+    async def create_session(
+        self, session_id: str, user_id: str, expires_at: datetime
+    ) -> None:
+        await (
+            self._db.table("sessions")
+            .insert({
+                "id":         session_id,
+                "user_id":    user_id,
+                "expires_at": expires_at.isoformat(),
+            })
+            .execute()
+        )
+
+    async def get_session_user(self, session_id: str) -> UserRecord | None:
+        now = datetime.now(timezone.utc).isoformat()
+        result = await (
+            self._db.table("sessions")
+            .select("users(*)")
+            .eq("id", session_id)
+            .gt("expires_at", now)
+            .limit(1)
+            .execute()
+        )
+        if not result.data or not result.data[0].get("users"):
+            return None
+        return _row_to_user(result.data[0]["users"])
+
+    async def delete_session(self, session_id: str) -> None:
+        await self._db.table("sessions").delete().eq("id", session_id).execute()
+
+    # ── Documents ──────────────────────────────────────────────────────────────
 
     async def insert_document(self, doc: DocumentRecord) -> DocumentRecord:
         row: dict = {
@@ -78,12 +174,11 @@ class SupabasePostgresDB(Database):
             "chunk_count":   doc.chunk_count,
             "created_at":    doc.created_at.isoformat(),
             "updated_at":    doc.updated_at.isoformat(),
-            # library fields (no-op if columns don't exist yet — Supabase ignores unknown keys)
-            "size_bytes":           doc.size_bytes,
-            "uploader_name":        doc.uploader_name,
-            "uploader_clearance":   doc.uploader_clearance,
-            "reference_count":      doc.reference_count,
-            "reference_history":    doc.reference_history,
+            "size_bytes":          doc.size_bytes,
+            "uploader_name":       doc.uploader_name,
+            "uploader_clearance":  doc.uploader_clearance,
+            "reference_count":     doc.reference_count,
+            "reference_history":   doc.reference_history,
         }
         if doc.pages is not None:
             row["pages"] = doc.pages
@@ -107,8 +202,6 @@ class SupabasePostgresDB(Database):
             return None
         return _row_to_doc(result.data[0])
 
-    # ── library listing ────────────────────────────────────────────────────
-
     async def list_documents(
         self,
         q: str | None = None,
@@ -119,7 +212,6 @@ class SupabasePostgresDB(Database):
         limit: int = 200,
         offset: int = 0,
     ) -> tuple[list[DocumentRecord], int]:
-        # Map UI sort keys → DB column names
         sort_col_map = {
             "uploadedAt":     "created_at",
             "title":          "title",
@@ -132,13 +224,10 @@ class SupabasePostgresDB(Database):
         col = sort_col_map.get(sort, sort)
 
         query = self._db.table("documents").select("*", count="exact")
-
         if classification:
             query = query.eq("classification", classification)
         if source_tier:
             query = query.eq("source_tier", source_tier)
-
-        # Text search: Supabase ilike on title; tag search done post-fetch
         if q:
             query = query.ilike("title", f"%{q}%")
 
@@ -149,24 +238,14 @@ class SupabasePostgresDB(Database):
         total = result.count or len(records)
         return records, total
 
-    # ── delete ─────────────────────────────────────────────────────────────
-
     async def delete_document(self, doc_id: str) -> bool:
         result = await (
-            self._db.table("documents")
-            .delete()
-            .eq("id", doc_id)
-            .execute()
+            self._db.table("documents").delete().eq("id", doc_id).execute()
         )
-        deleted = result.data or []
-        return len(deleted) > 0
-
-    # ── reference tracker ─────────────────────────────────────────────────
+        return len(result.data or []) > 0
 
     async def increment_reference(self, doc_id: str) -> None:
-        """Increment reference_count, push today's count into reference_history[9]."""
         now_iso = datetime.now(timezone.utc).isoformat()
-        # Fetch current row
         result = await (
             self._db.table("documents")
             .select("reference_count, reference_history")
@@ -180,9 +259,7 @@ class SupabasePostgresDB(Database):
         hist: list[int] = row.get("reference_history") or [0] * 10
         if not isinstance(hist, list) or len(hist) != 10:
             hist = [0] * 10
-        # Shift left, add 1 to today's bucket
         hist = hist[1:] + [hist[-1] + 1]
-
         await (
             self._db.table("documents")
             .update({
@@ -195,7 +272,7 @@ class SupabasePostgresDB(Database):
             .execute()
         )
 
-    # ── chunks / audit ─────────────────────────────────────────────────────
+    # ── Chunks / Audit ─────────────────────────────────────────────────────────
 
     async def insert_chunk(self, chunk: ChunkRecord) -> ChunkRecord:
         row = {
@@ -225,7 +302,6 @@ class SupabasePostgresDB(Database):
     async def write_action_audit(
         self, actor_id: str, clearance: str, action: str, target: str
     ) -> None:
-        """Write a document/system action to the audit_log table."""
         row = {
             "user_id":             actor_id,
             "clearance":           clearance,

@@ -5,6 +5,7 @@ import { ReferenceCount } from './ReferenceCount';
 
 interface DocumentRowProps {
   doc: Document;
+  canDelete: boolean;
   onDelete: (id: string, title: string) => void;
   onView: (id: string) => void;
   onCopyCite: (id: string) => void;
@@ -61,7 +62,7 @@ function formatSize(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
-export function DocumentRow({ doc, onDelete, onView, onCopyCite }: DocumentRowProps) {
+export function DocumentRow({ doc, canDelete, onDelete, onView, onCopyCite }: DocumentRowProps) {
   const cls = CLASSIFICATION_META[doc.classification] ?? CLASSIFICATION_META.internal;
   const status = STATUS_META[doc.status] ?? STATUS_META.indexed;
   const tier = TIER_LABEL[doc.sourceTier] ?? doc.sourceTier.slice(0, 3).toUpperCase();
@@ -177,13 +178,15 @@ export function DocumentRow({ doc, onDelete, onView, onCopyCite }: DocumentRowPr
           >
             ⎘
           </button>
-          <button
-            onClick={() => onDelete(doc.id, doc.title)}
-            title="Remove from corpus"
-            className={`${iconBtnBase} hover:bg-[rgba(217,117,112,0.08)] hover:text-uasc-red hover:border-uasc-red`}
-          >
-            ×
-          </button>
+          {canDelete && (
+            <button
+              onClick={() => onDelete(doc.id, doc.title)}
+              title="Remove from library"
+              className={`${iconBtnBase} hover:bg-[rgba(217,117,112,0.08)] hover:text-uasc-red hover:border-uasc-red`}
+            >
+              ×
+            </button>
+          )}
         </div>
       </td>
     </tr>

@@ -28,12 +28,14 @@ export function Topbar({
   systemsTone = 'green',
   systemsLabel = 'Systems Online',
   date,
+  onLogout,
 }: {
   user: User;
   crumbs: Crumb[];
   systemsTone?: 'green' | 'amber' | 'red';
   systemsLabel?: string;
   date?: string;
+  onLogout?: () => void;
 }) {
   const time = useGstClock();
   const displayDate = date ?? new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -66,6 +68,14 @@ export function Topbar({
           <Dot tone={systemsTone} live />
           <span>{systemsLabel}</span>
         </div>
+        {onLogout && (
+          <button
+            onClick={onLogout}
+            className="font-mono text-[10px] text-text-faint hover:text-uasc-red transition-colors duration-120 uppercase tracking-[0.08em] cursor-pointer bg-transparent border-none p-0"
+          >
+            sign out
+          </button>
+        )}
       </div>
     </header>
   );

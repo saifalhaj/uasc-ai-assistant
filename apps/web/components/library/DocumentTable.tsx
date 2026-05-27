@@ -17,6 +17,7 @@ interface DocumentTableProps {
   documents: Document[];
   sort: SortKey;
   order: 'asc' | 'desc';
+  canDelete: boolean;
   onSort: (key: SortKey) => void;
   onDelete: (id: string, title: string) => void;
   onView: (id: string) => void;
@@ -39,6 +40,7 @@ export function DocumentTable({
   documents,
   sort,
   order,
+  canDelete,
   onSort,
   onDelete,
   onView,
@@ -87,6 +89,7 @@ export function DocumentTable({
               <DocumentRow
                 key={doc.id}
                 doc={doc}
+                canDelete={canDelete}
                 onDelete={onDelete}
                 onView={onView}
                 onCopyCite={onCopyCite}
