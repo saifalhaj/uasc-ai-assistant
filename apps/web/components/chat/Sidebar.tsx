@@ -8,18 +8,20 @@ export interface ConversationItem {
   title: string;
   when?: string;
   active?: boolean;
-  href: string;
 }
 
 export function Sidebar({
   recent,
   saved,
   onNew,
+  onOpen,
   libraryHref = '/upload',
 }: {
   recent: ConversationItem[];
   saved?: ConversationItem[];
   onNew?: () => void;
+  /** Called with the conversation id when a recent/saved row is clicked. */
+  onOpen?: (id: string) => void;
   libraryHref?: string;
 }) {
   return (
@@ -28,8 +30,10 @@ export function Sidebar({
         <Button variant="primary" block onClick={onNew}>+ New query</Button>
       </div>
 
-      {recent.length > 0 && <Section label="Recent" items={recent} />}
-      {saved && saved.length > 0 && <Section label="Saved" items={saved} />}
+      <div className="overflow-y-auto flex-1 min-h-0">
+        {recent.length > 0 && <Section label="Recent" items={recent} onOpen={onOpen} />}
+        {saved && saved.length > 0 && <Section label="Saved" items={saved} onOpen={onOpen} />}
+      </div>
 
       <div className="mt-auto p-4 border-t border-border-base">
         <Link
@@ -48,18 +52,27 @@ export function Sidebar({
   );
 }
 
-function Section({ label, items }: { label: string; items: ConversationItem[] }) {
+function Section({
+  label,
+  items,
+  onOpen,
+}: {
+  label: string;
+  items: ConversationItem[];
+  onOpen?: (id: string) => void;
+}) {
   return (
     <div className="p-4 border-b border-border-base">
       <Label className="mb-2.5 block">{label}</Label>
       {items.map(c => (
-        <Link
+        <button
           key={c.id}
-          href={c.href}
+          type="button"
+          onClick={() => onOpen?.(c.id)}
           className={cn(
-            'block px-2.5 py-2 -mx-2.5 rounded-sm border border-transparent',
+            'block w-full text-left px-2.5 py-2 -mx-2.5 rounded-sm border border-transparent',
             'text-[13px] text-text-mid transition-colors duration-150',
-            'hover:bg-surf-1',
+            'hover:bg-surf-1 cursor-pointer',
             c.active && 'bg-surf-1 border-border-base text-text-hi',
           )}
         >
@@ -67,7 +80,7 @@ function Section({ label, items }: { label: string; items: ConversationItem[] })
           {c.when && (
             <span className="block font-mono text-[10px] text-text-faint mt-0.5">{c.when}</span>
           )}
-        </Link>
+        </button>
       ))}
     </div>
   );

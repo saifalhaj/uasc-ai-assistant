@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { ChatLayout, ChatMain, CitationsRail, UserMessage } from '@/components/chat/ChatLayout';
 import { Sidebar } from '@/components/chat/Sidebar';
 import { Composer } from '@/components/chat/Composer';
@@ -10,7 +10,11 @@ import { ErrorState } from '@/components/chat/ErrorState';
 import { CitationCard } from '@/components/chat/CitationCard';
 import { useAuth, hasLevel } from '@/app/AuthProvider';
 import type { AnswerEnvelopeData, Citation, Risk, SourceTier } from '@/lib/types';
-import type { AnswerEnvelope as ApiEnvelope } from '@uasc/shared';
+import type {
+  AnswerEnvelope as ApiEnvelope,
+  ChatSession as ApiChatSession,
+  ChatThread as ApiChatThread,
+} from '@uasc/shared';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -73,6 +77,21 @@ function uid() {
   return Math.random().toString(36).slice(2);
 }
 
+// Relative time for sidebar — "14m", "2h", "3d", "12 May"
+function relTime(iso: string): string {
+  const t = new Date(iso).getTime();
+  if (Number.isNaN(t)) return '';
+  const diff = Date.now() - t;
+  const m = Math.floor(diff / 60_000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 7) return `${d}d ago`;
+  return new Date(t).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+}
+
 // ── Chat page ────────────────────────────────────────────────────────────────
 
 export default function ChatPage() {
@@ -80,15 +99,61 @@ export default function ChatPage() {
   const canSeeRestricted = hasLevel(user, 'L4');
   const [turns, setTurns] = useState<Turn[]>([]);
   const [focusedCitation, setFocusedCitation] = useState<number | null>(null);
+  const [sessions, setSessions] = useState<ApiChatSession[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [loadingThread, setLoadingThread] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom on each new turn
+  // Scroll to bottom on each new turn (but not when hydrating a past thread)
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [turns.length]);
+    if (!loadingThread) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [turns.length, loadingThread]);
 
   const isLoading = turns.at(-1)?.state === 'loading';
 
+  // ── Load thread list ──────────────────────────────────────────────────────
+  const refreshSessions = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/chats?limit=30`, { credentials: 'include' });
+      if (!res.ok) return;
+      const data: ApiChatSession[] = await res.json();
+      setSessions(data);
+    } catch {
+      /* silent — empty sidebar is acceptable */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) refreshSessions();
+  }, [user, refreshSessions]);
+
+  // ── Open a past thread ────────────────────────────────────────────────────
+  async function handleOpenSession(id: string) {
+    if (id === currentSessionId) return;
+    setLoadingThread(true);
+    setFocusedCitation(null);
+    try {
+      const res = await fetch(`${API_URL}/chats/${id}`, { credentials: 'include' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const thread: ApiChatThread = await res.json();
+      const rebuilt: Turn[] = thread.turns.map(t => ({
+        id: uid(),
+        question: t.question,
+        state: 'done',
+        data: adaptApiEnvelope(t.envelope, canSeeRestricted),
+      }));
+      setTurns(rebuilt);
+      setCurrentSessionId(id);
+    } catch {
+      /* fall through silently — keep current view */
+    } finally {
+      setLoadingThread(false);
+    }
+  }
+
+  // ── Submit a new question ────────────────────────────────────────────────
   async function handleSubmit(question: string) {
     const id = uid();
     setFocusedCitation(null);
@@ -102,7 +167,7 @@ export default function ChatPage() {
       const res = await fetch(`${API_URL}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, top_k: 5 }),
+        body: JSON.stringify({ question, top_k: 5, session_id: currentSessionId ?? undefined }),
         credentials: 'include',
       });
       clearTimeout(t1);
@@ -119,6 +184,11 @@ export default function ChatPage() {
             : t,
         ),
       );
+      if (api.session_id && api.session_id !== currentSessionId) {
+        setCurrentSessionId(api.session_id);
+      }
+      // Refresh sidebar so the just-touched thread bubbles to the top
+      refreshSessions();
     } catch (err) {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -143,14 +213,16 @@ export default function ChatPage() {
 
   function handleNew() {
     setTurns([]);
+    setCurrentSessionId(null);
     setFocusedCitation(null);
   }
 
-  const recentItems = turns
-    .filter(t => t.state === 'done' || t.state === 'error')
-    .map(t => ({ id: t.id, title: t.question.slice(0, 48), href: '#', active: false }))
-    .slice(-8)
-    .reverse();
+  const recentItems = sessions.map(s => ({
+    id: s.id,
+    title: s.title,
+    when: relTime(s.updated_at),
+    active: s.id === currentSessionId,
+  }));
 
   const lastDoneTurn = turns.filter(t => t.state === 'done').at(-1);
   const activeCitations = lastDoneTurn?.state === 'done' ? lastDoneTurn.data.citations : [];
@@ -161,6 +233,7 @@ export default function ChatPage() {
         <Sidebar
           recent={recentItems}
           onNew={handleNew}
+          onOpen={handleOpenSession}
           libraryHref="/upload"
         />
       }

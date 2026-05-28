@@ -30,6 +30,28 @@ ALTER TABLE documents
   ADD COLUMN IF NOT EXISTS reference_count    INTEGER      DEFAULT 0,
   ADD COLUMN IF NOT EXISTS reference_history  INTEGER[]    DEFAULT ARRAY[0,0,0,0,0,0,0,0,0,0],
   ADD COLUMN IF NOT EXISTS last_referenced_at TIMESTAMPTZ;
+
+-- Chat history (per-user threads)
+CREATE TABLE IF NOT EXISTS chat_sessions (
+  id          TEXT PRIMARY KEY,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title       TEXT NOT NULL,
+  created_at  TIMESTAMPTZ DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS chat_sessions_user_updated_idx
+  ON chat_sessions (user_id, updated_at DESC);
+
+CREATE TABLE IF NOT EXISTS chat_messages (
+  id          TEXT PRIMARY KEY,
+  session_id  TEXT NOT NULL REFERENCES chat_sessions(id) ON DELETE CASCADE,
+  role        TEXT NOT NULL,          -- 'user' | 'assistant'
+  content     TEXT NOT NULL,
+  envelope    JSONB,                  -- full AnswerEnvelope for assistant rows
+  created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS chat_messages_session_created_idx
+  ON chat_messages (session_id, created_at);
 ─────────────────────────────────────────────────────────
 """
 
@@ -40,6 +62,8 @@ from supabase import AsyncClient
 
 from interfaces.database import (
     AuditEntry,
+    ChatMessageRecord,
+    ChatSessionRecord,
     ChunkRecord,
     Database,
     DocumentRecord,
@@ -275,6 +299,96 @@ class SupabasePostgresDB(Database):
             .eq("id", doc_id)
             .execute()
         )
+
+    # ── Chat history ───────────────────────────────────────────────────────────
+
+    async def create_chat_session(self, session: ChatSessionRecord) -> None:
+        await self._db.table("chat_sessions").insert({
+            "id":         session.id,
+            "user_id":    session.user_id,
+            "title":      session.title,
+            "created_at": session.created_at.isoformat(),
+            "updated_at": session.updated_at.isoformat(),
+        }).execute()
+
+    async def get_chat_session(self, session_id: str) -> ChatSessionRecord | None:
+        result = await (
+            self._db.table("chat_sessions")
+            .select("*")
+            .eq("id", session_id)
+            .limit(1)
+            .execute()
+        )
+        if not result.data:
+            return None
+        row = result.data[0]
+        return ChatSessionRecord(
+            id=row["id"],
+            user_id=row["user_id"],
+            title=row["title"],
+            created_at=datetime.fromisoformat(row["created_at"]),
+            updated_at=datetime.fromisoformat(row["updated_at"]),
+        )
+
+    async def touch_chat_session(self, session_id: str) -> None:
+        await (
+            self._db.table("chat_sessions")
+            .update({"updated_at": datetime.now(timezone.utc).isoformat()})
+            .eq("id", session_id)
+            .execute()
+        )
+
+    async def list_chat_sessions(
+        self, user_id: str, limit: int = 50
+    ) -> list[ChatSessionRecord]:
+        result = await (
+            self._db.table("chat_sessions")
+            .select("*")
+            .eq("user_id", user_id)
+            .order("updated_at", desc=True)
+            .limit(limit)
+            .execute()
+        )
+        return [
+            ChatSessionRecord(
+                id=row["id"],
+                user_id=row["user_id"],
+                title=row["title"],
+                created_at=datetime.fromisoformat(row["created_at"]),
+                updated_at=datetime.fromisoformat(row["updated_at"]),
+            )
+            for row in (result.data or [])
+        ]
+
+    async def insert_chat_message(self, message: ChatMessageRecord) -> None:
+        await self._db.table("chat_messages").insert({
+            "id":         message.id,
+            "session_id": message.session_id,
+            "role":       message.role,
+            "content":    message.content,
+            "envelope":   message.envelope,
+            "created_at": message.created_at.isoformat(),
+        }).execute()
+
+    async def list_chat_messages(self, session_id: str) -> list[ChatMessageRecord]:
+        result = await (
+            self._db.table("chat_messages")
+            .select("*")
+            .eq("session_id", session_id)
+            .order("created_at", desc=False)
+            .execute()
+        )
+        return [
+            ChatMessageRecord(
+                id=row["id"],
+                session_id=row["session_id"],
+                role=row["role"],
+                content=row["content"],
+                envelope=row.get("envelope"),
+                created_at=datetime.fromisoformat(row["created_at"]),
+            )
+            for row in (result.data or [])
+        ]
 
     # ── Chunks / Audit ─────────────────────────────────────────────────────────
 
