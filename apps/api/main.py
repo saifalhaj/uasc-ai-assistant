@@ -17,9 +17,9 @@ from routers.auth import make_salt_and_hash
 # ── Seed users ─────────────────────────────────────────────────────────────────
 
 _SEED_USERS = [
-    ("uasc-L02", "L02", "L2", "Operator", "L2 · OPERATOR"),
-    ("uasc-L03", "L03", "L3", "Analyst",  "L3 · ANALYST"),
-    ("uasc-L04", "L04", "L4", "Ops Lead", "L4 · OPS-LEAD"),
+    ("uasc-L02", "L02", "L2", "A. Alyammahi", "L2 · OPERATOR"),
+    ("uasc-L03", "L03", "L3", "M. Omar",      "L3 · ANALYST"),
+    ("uasc-L04", "L04", "L4", "S. Alhaj",     "L4 · OPS-LEAD"),
 ]
 
 

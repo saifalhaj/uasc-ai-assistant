@@ -92,9 +92,9 @@ export async function deleteSession(sessionId: string): Promise<void> {
 // ── Default account seeding ───────────────────────────────────────────────────
 
 const SEED_USERS = [
-  { station_id: 'uasc-L02', password: 'L02', level: 'L2', display_name: 'Operator', clearance_label: 'L2 · OPERATOR' },
-  { station_id: 'uasc-L03', password: 'L03', level: 'L3', display_name: 'Analyst',  clearance_label: 'L3 · ANALYST'  },
-  { station_id: 'uasc-L04', password: 'L04', level: 'L4', display_name: 'Ops Lead', clearance_label: 'L4 · OPS-LEAD' },
+  { station_id: 'uasc-L02', password: 'L02', level: 'L2', display_name: 'A. Alyammahi', clearance_label: 'L2 · OPERATOR' },
+  { station_id: 'uasc-L03', password: 'L03', level: 'L3', display_name: 'M. Omar',      clearance_label: 'L3 · ANALYST'  },
+  { station_id: 'uasc-L04', password: 'L04', level: 'L4', display_name: 'S. Alhaj',     clearance_label: 'L4 · OPS-LEAD' },
 ];
 
 /**
