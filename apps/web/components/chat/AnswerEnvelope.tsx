@@ -1,6 +1,5 @@
 import { cn } from '@/lib/cn';
 import { Badge } from '@/components/ui/Badge';
-import { CitationCard } from './CitationCard';
 import { InstrumentTile } from './InstrumentTile';
 import type { AnswerEnvelopeData, EscalationFlag, Risk } from '@/lib/types';
 import type { ReactNode } from 'react';
@@ -31,19 +30,6 @@ export function AnswerEnvelope({
         <Badge tone={escTone(data.escalation)}>{escLabel(data.escalation)}</Badge>
         {data.spatial && <Badge tone="bright">SPATIAL · MAP ATTACHED</Badge>}
       </div>
-
-      {data.citations.length > 0 && (
-        <div className="flex flex-col gap-2 mt-1">
-          {data.citations.map(c => (
-            <CitationCard
-              key={c.n}
-              citation={c}
-              focused={focusedCitation === c.n}
-              onClick={() => onCiteClick?.(c.n)}
-            />
-          ))}
-        </div>
-      )}
 
       <div className="grid grid-cols-4 gap-px bg-border-base border border-border-base rounded mt-1">
         <InstrumentTile
