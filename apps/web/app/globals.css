@@ -181,3 +181,73 @@ body {
   .ambient-video video        { animation-play-state: paused; }
   .ambient-video .feed-tag::before { animation: none; }
 }
+
+/* ===== Login: operator FX panel ========================================= */
+/* Anchors the operator photo down the left of the login stage. The image
+   must sit on pure black — mix-blend-mode: screen drops the background so
+   only the lit figure + antenna survive. Tuning values
+   (opacity 0.5 · brightness 0.92 · grayscale 1 · screen blend) are
+   load-bearing — soften any one and the figure stops receding. */
+
+.login-operator {
+  position: absolute;
+  top: 0; bottom: 0; left: 0;
+  width: min(640px, 46vw);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.login-operator img {
+  position: absolute;
+  bottom: -2%;
+  left: -30%;                  /* push left so the antenna becomes the subject */
+  height: 104%;
+  width: auto;
+  object-fit: contain;
+  object-position: left bottom;
+  opacity: 0.5;
+  filter: grayscale(1) contrast(1.12) brightness(0.92);
+  mix-blend-mode: screen;
+  user-select: none;
+}
+/* Right-edge horizontal fade — blends the panel into the page, no hard cut */
+.login-operator::after {
+  content: '';
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    rgba(10,13,18,0) 0%, rgba(10,13,18,0) 62%, var(--bg-base) 96%);
+}
+/* Sensor wash + scan-lines so the figure reads as a live feed */
+.login-operator::before {
+  content: '';
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 1;
+  background:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.016) 0 1px, transparent 1px 3px),
+    radial-gradient(120% 90% at 20% 80%, rgba(122,174,122,0.06) 0%, transparent 60%);
+  mix-blend-mode: overlay;
+}
+/* Bottom-left feed identity tag with pulsing red dot */
+.login-operator .op-cap {
+  position: absolute; z-index: 2;
+  bottom: 12%; left: 5%;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(184,192,200,0.45);
+}
+.login-operator .op-cap::before {
+  content: '';
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 0 0 rgba(217,117,112,0.6);
+  animation: uasc-feed-pulse 2.2s infinite;
+}
+.login-operator .op-cap .pk { color: var(--amber); margin-left: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .login-operator .op-cap::before { animation: none; }
+}

@@ -213,50 +213,12 @@ function FxLayer() {
       {/* Grid background */}
       <div className="grid-bg absolute inset-0" />
 
-      {/* RF spectrum strip — top left */}
-      <div
-        className="absolute opacity-55"
-        style={{ top: '16%', left: '4%', width: 380 }}
-      >
-        <svg viewBox="0 0 360 80" preserveAspectRatio="none" width="380" height="80">
-          <defs>
-            <linearGradient id="rf-fade" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%"   stopColor="#0a0d12" stopOpacity="1" />
-              <stop offset="12%"  stopColor="#0a0d12" stopOpacity="0" />
-              <stop offset="88%"  stopColor="#0a0d12" stopOpacity="0" />
-              <stop offset="100%" stopColor="#0a0d12" stopOpacity="1" />
-            </linearGradient>
-            <mask id="rf-mask">
-              <rect width="360" height="80" fill="white" />
-              <rect width="360" height="80" fill="url(#rf-fade)" />
-            </mask>
-          </defs>
-          {/* Baseline + grid lines */}
-          <line x1="0" y1="60" x2="360" y2="60" stroke="#b8c0c8" strokeOpacity="0.12" strokeWidth="0.8" />
-          <line x1="0" y1="40" x2="360" y2="40" stroke="#b8c0c8" strokeOpacity="0.07" strokeWidth="0.6" strokeDasharray="4 6" />
-          <line x1="0" y1="20" x2="360" y2="20" stroke="#b8c0c8" strokeOpacity="0.07" strokeWidth="0.6" strokeDasharray="4 6" />
-
-          {/* Waveform — longer than viewbox, animated */}
-          <g mask="url(#rf-mask)">
-            <polyline
-              className="rf-trace"
-              points="0,58 10,55 20,52 30,48 40,42 50,38 55,34 60,30 65,26 70,22 75,28 80,36 90,44 100,50 110,54 120,22 125,18 130,14 135,18 140,26 150,44 160,52 170,55 180,50 190,44 200,40 210,36 220,32 230,38 240,46 250,50 260,52 270,48 280,42 290,38 300,34 310,40 320,48 330,54 340,57 350,58 360,58 370,55 380,50 390,44 400,40 410,36 420,32"
-              fill="none"
-              stroke="#7aae7a"
-              strokeWidth="1.2"
-              strokeOpacity="0.55"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-            />
-          </g>
-
-          {/* Peak marker at x=120 */}
-          <line x1="120" y1="10" x2="120" y2="62" stroke="#d8a957" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.6" />
-          <circle cx="120" cy="14" r="2.2" fill="#d8a957" fillOpacity="0.7" />
-        </svg>
-        <div className="font-mono text-[9px] text-text-dim tracking-[0.04em] mt-1">
-          rf · 2.40–2.48 ghz · peak{' '}
-          <span style={{ color: '#d8a957', opacity: 0.8 }}>+14 dBm · 2.443 · cuas-08</span>
+      {/* Operator photo — left side, blended */}
+      <div className="login-operator">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/assets/login-operator.jpg" alt="" draggable={false} />
+        <div className="op-cap">
+          feed&nbsp;·&nbsp;sensor-rack&nbsp;03&nbsp;<span className="pk">live</span>
         </div>
       </div>
 
@@ -270,15 +232,7 @@ function FxLayer() {
         <div>threat elevated · posture <span style={{ color: 'rgba(216,169,87,0.7)' }}>amber</span></div>
       </div>
 
-      {/* Tactical readout — bottom left */}
-      <div
-        className="absolute font-mono text-[9px] uppercase tracking-[0.14em]"
-        style={{ bottom: '12%', left: '5%', color: 'rgba(184,192,200,0.22)', lineHeight: 1.8 }}
-      >
-        <div>scope · prf 1.2 khz · range 25km</div>
-        <div><span style={{ color: 'rgba(240,243,246,0.42)' }}>4 contacts tracked · 1 unknown</span></div>
-        <div>last sweep · 13:42:08 gst</div>
-      </div>
+      {/* (No bottom-left readout — the operator photo owns that corner) */}
 
       {/* Radar scope — bottom right */}
       <div
@@ -302,19 +256,12 @@ function FxLayer() {
           0%   { r: 4;  opacity: .55; }
           100% { r: 28; opacity: 0;   }
         }
-        @keyframes rf-shift {
-          from { transform: translateX(0); }
-          to   { transform: translateX(-60px); }
-        }
         .sweep-group {
           transform-origin: 600px 600px;
           animation: scope-spin 7.5s linear infinite;
         }
-        .rf-trace {
-          animation: rf-shift 6s linear infinite;
-        }
         @media (prefers-reduced-motion: reduce) {
-          .sweep-group, .rf-trace,
+          .sweep-group,
           [class*="blip-"] { animation: none !important; }
         }
       `}</style>
