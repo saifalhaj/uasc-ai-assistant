@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import { Dot } from '@/components/ui/Dot';
@@ -49,9 +50,18 @@ export function Topbar({
     >
       <Link
         href="/"
-        className="font-mono text-[13px] font-medium tracking-[0.18em] uppercase text-text-hi hover:text-white transition-colors duration-150 shrink-0"
+        aria-label="UASC home"
+        className="shrink-0 flex items-center transition-opacity duration-150 hover:opacity-80"
       >
-        UASC
+        <Image
+          src="/UASCLogoTopbar.png"
+          alt="UASC"
+          width={1184}
+          height={387}
+          priority
+          unoptimized
+          className="block h-7 w-auto"
+        />
       </Link>
 
       <div className="flex items-baseline gap-3 text-[11px]">
