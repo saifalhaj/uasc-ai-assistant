@@ -1,11 +1,11 @@
 """RAG agent — the core query pipeline."""
 
-import json
 import time
 
 from interfaces.database import AuditEntry, Database
 from interfaces.embedding_client import EmbeddingClient
 from interfaces.vector_store import VectorStore
+from middleware.auth import can_see_restricted
 from models.schemas import AnswerEnvelope, ChatRequest, CitationOut
 
 from .router import Router
@@ -39,9 +39,10 @@ class RAGAgent:
         self,
         request: ChatRequest,
         user_id: str,
-        clearance: str,
+        level: str,
     ) -> AnswerEnvelope:
         start = time.monotonic()
+        allow_restricted = can_see_restricted(level)
 
         # 1. Embed query
         embed_result = await self._embedder.embed(
@@ -49,14 +50,23 @@ class RAGAgent:
         )
         query_vector = embed_result.vectors[0]
 
-        # 2. Retrieve top-k chunks
+        # 2. Retrieve top-k chunks (non-L4 callers exclude restricted at the index)
+        search_filter = (
+            None if allow_restricted
+            else {"must_not": {"classification": "restricted"}}
+        )
         results = await self._vector_store.search(
             collection=_COLLECTION,
             query_vector=query_vector,
             top_k=request.top_k,
+            filter=search_filter,
         )
 
-        # 3. Check for restricted chunks (Phase 1: warning only; Phase 3: route to local LLM)
+        # Belt-and-suspenders: drop any restricted leakage post-filter for non-L4.
+        if not allow_restricted:
+            results = [r for r in results if r.payload.get("classification") != "restricted"]
+
+        # 3. Note restricted hits in answer metadata (L4 only, by construction).
         limitations: list[str] = []
         has_restricted = any(
             r.payload.get("classification") == "restricted" for r in results
@@ -119,7 +129,7 @@ class RAGAgent:
                 AuditEntry(
                     id=None,
                     user_id=user_id,
-                    clearance=clearance,
+                    clearance=level,
                     question=request.question,
                     retrieved_chunk_ids=[r.id for r in results],
                     model_used=llm_response.model,

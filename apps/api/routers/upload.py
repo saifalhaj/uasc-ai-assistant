@@ -10,7 +10,7 @@ from agents.rag_agent import _COLLECTION
 from dependencies import Container, get_container
 from interfaces.database import ChunkRecord, DocumentRecord
 from interfaces.vector_store import VectorPoint
-from middleware.auth import AuthUser, get_current_user
+from middleware.auth import AuthUser, can_see_restricted, get_current_user
 from models.schemas import ChunkMetadata, IndexingStatusResponse, UploadRequest
 
 router = APIRouter(prefix="/upload", tags=["upload"])
@@ -35,6 +35,12 @@ async def upload_document(
     user: AuthUser = Depends(get_current_user),
     container: Container = Depends(get_container),
 ) -> IndexingStatusResponse:
+    if classification == "restricted" and not can_see_restricted(user.level):
+        raise HTTPException(
+            status_code=403,
+            detail="Only L4 personnel may upload RESTRICTED insights.",
+        )
+
     content_type = file.content_type or "application/octet-stream"
     if content_type not in _ALLOWED_CONTENT_TYPES and not file.filename.endswith(
         (".pdf", ".docx", ".doc", ".txt")
@@ -47,10 +53,8 @@ async def upload_document(
     tag_list = [t.strip() for t in tags.split(",") if t.strip()]
     now = datetime.now(timezone.utc)
 
-    # Derive display name from auth user email (Phase 2: use Entra ID display name)
-    uploader_display = user.email.split("@")[0].replace(".", " ").title()
-    # Map auth clearance (internal/restricted/public) → display role; TODO: enrich via Entra
-    clearance_display = f"L? · {user.clearance.upper()}"
+    uploader_display = user.display_name
+    clearance_display = user.clearance_label
 
     # 1. Store original file
     try:

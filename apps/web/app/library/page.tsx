@@ -40,7 +40,7 @@ export default function LibraryPage() {
       if (classification !== 'all') params.set('classification', classification);
       if (tier !== 'all')           params.set('sourceTier', tier);
 
-      const res = await fetch(`${API_URL}/documents?${params}`);
+      const res = await fetch(`${API_URL}/documents?${params}`, { credentials: 'include' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       // API returns { documents: [...], total: N } or just [...]
@@ -93,7 +93,7 @@ export default function LibraryPage() {
     if (!deleteTarget) return;
     setIsDeleting(true);
     try {
-      const res = await fetch(`${API_URL}/documents/${deleteTarget.id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_URL}/documents/${deleteTarget.id}`, { method: 'DELETE', credentials: 'include' });
       if (!res.ok) throw new Error('Delete failed');
       // optimistic remove
       setDocuments(prev => prev.filter(d => d.id !== deleteTarget.id));
@@ -169,6 +169,7 @@ export default function LibraryPage() {
           tier={tier}
           onTier={setTier}
           resultCount={documents.length}
+          canSeeRestricted={canDelete}
         />
 
         {/* ── Table ──────────────────────────────────────────────────────── */}

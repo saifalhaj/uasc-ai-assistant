@@ -57,7 +57,7 @@ export default function InsightManagementPage() {
     form.append('language', toApiLanguage(payload.language));
     form.append('tags', payload.tags.join(','));
 
-    const res = await fetch(`${API_URL}/upload`, { method: 'POST', body: form });
+    const res = await fetch(`${API_URL}/upload`, { method: 'POST', body: form, credentials: 'include' });
     if (!res.ok) {
       const detail = await res.json().catch(() => ({}));
       throw new Error(detail.detail || `HTTP ${res.status}`);
@@ -147,6 +147,7 @@ export default function InsightManagementPage() {
           }}
           onCancel={() => { window.location.href = '/'; }}
           hideHeader
+          canSelectRestricted={hasLevel(user, 'L4')}
         />
       </div>
     </section>

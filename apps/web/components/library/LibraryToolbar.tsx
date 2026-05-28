@@ -8,6 +8,8 @@ interface LibraryToolbarProps {
   tier: string;
   onTier: (v: string) => void;
   resultCount: number;
+  /** When false, the RESTRICTED filter chip is hidden (L4-only). */
+  canSeeRestricted?: boolean;
 }
 
 function filterBtn(active: boolean, extra?: string) {
@@ -28,6 +30,7 @@ export function LibraryToolbar({
   tier,
   onTier,
   resultCount,
+  canSeeRestricted = true,
 }: LibraryToolbarProps) {
   return (
     <div className="flex items-center gap-2.5 mb-3.5 flex-wrap">
@@ -60,15 +63,17 @@ export function LibraryToolbar({
         >
           All
         </button>
-        <button
-          onClick={() => onClassification('restricted')}
-          className={filterBtn(
-            classification === 'restricted',
-            classification === 'restricted' ? 'border-uasc-red text-uasc-red' : '',
-          )}
-        >
-          Restricted
-        </button>
+        {canSeeRestricted && (
+          <button
+            onClick={() => onClassification('restricted')}
+            className={filterBtn(
+              classification === 'restricted',
+              classification === 'restricted' ? 'border-uasc-red text-uasc-red' : '',
+            )}
+          >
+            Restricted
+          </button>
+        )}
         <button
           onClick={() => onClassification('internal')}
           className={filterBtn(

@@ -67,8 +67,17 @@ class QdrantCloudStore(VectorStore):
         )
 
     def _build_filter(self, filter: dict[str, Any]) -> Filter:
-        conditions = [
-            FieldCondition(key=k, match=MatchValue(value=v))
-            for k, v in filter.items()
-        ]
-        return Filter(must=conditions)
+        # Accepts either a flat {key: value} (treated as must) or
+        # {"must": {...}, "must_not": {...}} for richer logic.
+        must_dict = filter.get("must") if isinstance(filter.get("must"), dict) else None
+        must_not_dict = filter.get("must_not") if isinstance(filter.get("must_not"), dict) else None
+        if must_dict is None and must_not_dict is None:
+            must_dict = filter
+
+        def _conds(d: dict[str, Any]) -> list[FieldCondition]:
+            return [FieldCondition(key=k, match=MatchValue(value=v)) for k, v in d.items()]
+
+        return Filter(
+            must=_conds(must_dict) if must_dict else None,
+            must_not=_conds(must_not_dict) if must_not_dict else None,
+        )

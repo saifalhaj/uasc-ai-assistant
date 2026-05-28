@@ -22,7 +22,7 @@ from fastapi.responses import RedirectResponse
 from agents.rag_agent import _COLLECTION
 from dependencies import Container, get_container
 from interfaces.database import DocumentRecord
-from middleware.auth import AuthUser, get_current_user
+from middleware.auth import AuthUser, can_see_restricted, get_current_user
 from models.schemas import DocumentListResponse, DocumentOut, UploaderInfo
 
 router = APIRouter(prefix="/documents", tags=["documents"])
@@ -86,6 +86,13 @@ async def list_documents(
         _reverse = {"authoritative": "authoritative", "reference": "vetted", "external": "open"}
         db_source_tier = _reverse.get(sourceTier, sourceTier)
 
+    # Non-L4 callers must never see restricted rows. Asking for them returns empty.
+    exclude: list[str] | None = None
+    if not can_see_restricted(user.level):
+        if classification == "restricted":
+            return DocumentListResponse(documents=[], total=0)
+        exclude = ["restricted"]
+
     records, total = await container.database.list_documents(
         q=q,
         classification=classification,
@@ -94,6 +101,7 @@ async def list_documents(
         order=order,
         limit=limit,
         offset=offset,
+        exclude_classifications=exclude,
     )
     return DocumentListResponse(
         documents=[_doc_to_out(r) for r in records],
@@ -110,6 +118,8 @@ async def download_document(
     """Redirect to the document's public storage URL so the browser can open it."""
     doc = await container.database.get_document(doc_id)
     if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    if doc.classification == "restricted" and not can_see_restricted(user.level):
         raise HTTPException(status_code=404, detail="Document not found")
     if not doc.storage_url:
         raise HTTPException(status_code=404, detail="Document has no accessible URL")
@@ -151,7 +161,7 @@ async def delete_document(
     # 5. Write audit log
     await container.database.write_action_audit(
         actor_id=user.id,
-        clearance=user.clearance,
+        clearance=user.clearance_label,
         action="document.delete",
         target=doc_id,
     )
