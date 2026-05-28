@@ -38,13 +38,18 @@ const tonePip:    Record<Option['tone'], string> = { red: 'bg-uasc-red', amber: 
 export function ClassificationPicker({
   value,
   onChange,
+  canSelectRestricted = true,
 }: {
   value: Classification | null;
   onChange: (v: Classification) => void;
+  /** When false, the RESTRICTED option is hidden (L4-only in policy). */
+  canSelectRestricted?: boolean;
 }) {
+  const visible = canSelectRestricted ? OPTIONS : OPTIONS.filter(o => o.value !== 'restricted');
+  const cols = visible.length === 3 ? 'grid-cols-3' : 'grid-cols-2';
   return (
-    <div className="grid grid-cols-3 gap-1.5" role="radiogroup" aria-label="Classification">
-      {OPTIONS.map(opt => {
+    <div className={`grid ${cols} gap-1.5`} role="radiogroup" aria-label="Classification">
+      {visible.map(opt => {
         const selected = value === opt.value;
         return (
           <button

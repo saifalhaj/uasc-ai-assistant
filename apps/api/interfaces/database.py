@@ -121,6 +121,7 @@ class Database(ABC):
         order: str = "desc",
         limit: int = 200,
         offset: int = 0,
+        exclude_classifications: list[str] | None = None,
     ) -> tuple[list[DocumentRecord], int]:
         pass
 

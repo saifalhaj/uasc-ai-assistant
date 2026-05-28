@@ -211,6 +211,7 @@ class SupabasePostgresDB(Database):
         order: str = "desc",
         limit: int = 200,
         offset: int = 0,
+        exclude_classifications: list[str] | None = None,
     ) -> tuple[list[DocumentRecord], int]:
         sort_col_map = {
             "uploadedAt":     "created_at",
@@ -230,6 +231,9 @@ class SupabasePostgresDB(Database):
             query = query.eq("source_tier", source_tier)
         if q:
             query = query.ilike("title", f"%{q}%")
+        if exclude_classifications:
+            for c in exclude_classifications:
+                query = query.neq("classification", c)
 
         query = query.order(col, desc=(order == "desc")).range(offset, offset + limit - 1)
         result = await query.execute()

@@ -8,6 +8,7 @@ import { AnswerEnvelope } from '@/components/chat/AnswerEnvelope';
 import { LoadingStages, type LoadingStage } from '@/components/chat/LoadingStages';
 import { ErrorState } from '@/components/chat/ErrorState';
 import { CitationCard } from '@/components/chat/CitationCard';
+import { useAuth, hasLevel } from '@/app/AuthProvider';
 import type { AnswerEnvelopeData, Citation, Risk, SourceTier } from '@/lib/types';
 import type { AnswerEnvelope as ApiEnvelope } from '@uasc/shared';
 
@@ -34,8 +35,11 @@ function toRecencyHealth(recency: string): 'green' | 'amber' | 'red' {
   return 'green';
 }
 
-function adaptApiEnvelope(api: ApiEnvelope): AnswerEnvelopeData {
-  const citations: Citation[] = api.citations.map((c, i) => ({
+function adaptApiEnvelope(api: ApiEnvelope, canSeeRestricted: boolean): AnswerEnvelopeData {
+  const safeCitations = canSeeRestricted
+    ? api.citations
+    : api.citations.filter(c => c.classification !== 'restricted');
+  const citations: Citation[] = safeCitations.map((c, i) => ({
     n: i + 1,
     title: c.source_name,
     classification: c.classification as Citation['classification'],
@@ -72,6 +76,8 @@ function uid() {
 // ── Chat page ────────────────────────────────────────────────────────────────
 
 export default function ChatPage() {
+  const { user } = useAuth();
+  const canSeeRestricted = hasLevel(user, 'L4');
   const [turns, setTurns] = useState<Turn[]>([]);
   const [focusedCitation, setFocusedCitation] = useState<number | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -97,6 +103,7 @@ export default function ChatPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question, top_k: 5 }),
+        credentials: 'include',
       });
       clearTimeout(t1);
       clearTimeout(t2);
@@ -108,7 +115,7 @@ export default function ChatPage() {
       setTurns(prev =>
         prev.map(t =>
           t.id === id
-            ? { id, question, state: 'done', data: adaptApiEnvelope(api) }
+            ? { id, question, state: 'done', data: adaptApiEnvelope(api, canSeeRestricted) }
             : t,
         ),
       );

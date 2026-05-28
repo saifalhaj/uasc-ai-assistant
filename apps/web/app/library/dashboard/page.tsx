@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useAuth, hasLevel } from '@/app/AuthProvider';
 
 // ── Mock data ─────────────────────────────────────────────────────────────────
 
@@ -80,6 +81,8 @@ function LegRow({ dot, label, value, pct }: { dot: string; label: string; value:
 
 export default function LibraryDashboardPage() {
   const [range, setRange] = useState('30d');
+  const { user } = useAuth();
+  const canSeeRestricted = hasLevel(user, 'L4');
 
   return (
     <div className="overflow-auto h-full">
@@ -150,13 +153,25 @@ export default function LibraryDashboardPage() {
         <div className="grid gap-[14px] mb-[14px]" style={{ gridTemplateColumns: '1.1fr 1fr 1fr 1.1fr' }}>
 
           <Card>
-            <CardHead title="Classification mix" sub="12 442 docs" />
-            <StackBar segs={[{ pct: 18.2, color: '#d97570', title: 'Restricted' }, { pct: 54.4, color: '#d8a957', title: 'Internal' }, { pct: 27.4, color: '#7aae7a', title: 'Public' }]} />
-            <div className="flex flex-col gap-2 mt-[14px]">
-              <LegRow dot="#d97570" label="Restricted" value="2 264" pct="18.2%" />
-              <LegRow dot="#d8a957" label="Internal"   value="6 769" pct="54.4%" />
-              <LegRow dot="#7aae7a" label="Public"     value="3 409" pct="27.4%" />
-            </div>
+            <CardHead title="Classification mix" sub={canSeeRestricted ? '12 442 docs' : '10 178 docs · L4-only segments hidden'} />
+            {canSeeRestricted ? (
+              <>
+                <StackBar segs={[{ pct: 18.2, color: '#d97570', title: 'Restricted' }, { pct: 54.4, color: '#d8a957', title: 'Internal' }, { pct: 27.4, color: '#7aae7a', title: 'Public' }]} />
+                <div className="flex flex-col gap-2 mt-[14px]">
+                  <LegRow dot="#d97570" label="Restricted" value="2 264" pct="18.2%" />
+                  <LegRow dot="#d8a957" label="Internal"   value="6 769" pct="54.4%" />
+                  <LegRow dot="#7aae7a" label="Public"     value="3 409" pct="27.4%" />
+                </div>
+              </>
+            ) : (
+              <>
+                <StackBar segs={[{ pct: 66.5, color: '#d8a957', title: 'Internal' }, { pct: 33.5, color: '#7aae7a', title: 'Public' }]} />
+                <div className="flex flex-col gap-2 mt-[14px]">
+                  <LegRow dot="#d8a957" label="Internal" value="6 769" pct="66.5%" />
+                  <LegRow dot="#7aae7a" label="Public"   value="3 409" pct="33.5%" />
+                </div>
+              </>
+            )}
           </Card>
 
           <Card>
@@ -452,7 +467,7 @@ export default function LibraryDashboardPage() {
                 { ext:'PDF',  nm:'Incident Escalation Log — IR-2026-0511', id:'DOC-2925', cls:'amber', when:'1d ago'  },
                 { ext:'PDF',  nm:'Sensor Maintenance Manual — DJI M30',    id:'DOC-2920', cls:'green', when:'2d ago'  },
                 { ext:'PDF',  nm:'GCAA UAS Regulation — 2026 Amend.',      id:'DOC-2918', cls:'green', when:'3d ago'  },
-              ].map(r => (
+              ].filter(r => canSeeRestricted || r.cls !== 'red').map(r => (
                 <div key={r.id} className="grid items-center gap-2.5 py-[6px] border-b border-dashed border-border-base last:border-none" style={{ gridTemplateColumns: '28px 1fr auto auto' }}>
                   <div className="w-6 h-7 border border-border-hi rounded-[2px] grid place-items-center font-mono text-[8px] text-text-mid tracking-[0.04em] bg-bg-deep flex-shrink-0">{r.ext}</div>
                   <span className="text-text-hi text-[12.5px] overflow-hidden text-ellipsis whitespace-nowrap min-w-0">
@@ -479,7 +494,7 @@ export default function LibraryDashboardPage() {
                 { t:'09:14', type:'up',  by:'S. Rahimi',   lvl:'l3', msg:'Upload DOC-2929 · Threat Report 2026-052' },
                 { t:'08:40', type:'up',  by:'K. Mansoor',  lvl:'l3', msg:'Upload DOC-2915 · AB-12 Q1 telemetry' },
                 { t:'07:02', type:'q',   by:'M. Al-Haji',  lvl:'l4', msg:'Query cited 4 docs · "morning brief 22 May"' },
-              ].map((row, i) => (
+              ].filter(row => canSeeRestricted || !/restricted/i.test(row.msg)).map((row, i) => (
                 <div key={i} className="grid items-start gap-2.5 py-[7px] border-b border-dashed border-border-base last:border-none text-[12px]" style={{ gridTemplateColumns: '46px 10px 1fr auto' }}>
                   <span className="font-mono text-[10px] text-text-dim tracking-[0.04em]">{row.t}</span>
                   <span className={`w-1.5 h-1.5 rounded-full mt-[5px] flex-shrink-0 ${row.type==='up'?'bg-uasc-green':row.type==='del'?'bg-uasc-red':row.type==='esc'?'bg-uasc-amber':'bg-text-mid'}`} />

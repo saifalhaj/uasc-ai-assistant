@@ -19,7 +19,7 @@ async def chat(
         return await container.agent.query(
             request=request,
             user_id=user.id,
-            clearance=user.clearance,
+            level=user.level,
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc

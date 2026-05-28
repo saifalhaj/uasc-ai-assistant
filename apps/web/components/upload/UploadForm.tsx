@@ -21,12 +21,15 @@ export function UploadForm({
   onSubmit,
   onCancel,
   hideHeader = false,
+  canSelectRestricted = true,
 }: {
   onSubmit: (payload: UploadPayload) => void | Promise<void>;
   onCancel?: () => void;
   /** When true, suppresses the built-in header (title + subtitle).
    *  Use this when the parent page renders its own header. */
   hideHeader?: boolean;
+  /** When false, the RESTRICTED classification option is hidden (L4-only). */
+  canSelectRestricted?: boolean;
 }) {
   const [file, setFile]               = useState<File | null>(null);
   const [classification, setClassification] = useState<Classification | null>('internal');
@@ -61,7 +64,11 @@ export function UploadForm({
         <Dropzone onFile={setFile} />
 
         <Field label={<>Classification <span className="text-uasc-red ml-1">*</span></>}>
-          <ClassificationPicker value={classification} onChange={setClassification} />
+          <ClassificationPicker
+            value={classification}
+            onChange={setClassification}
+            canSelectRestricted={canSelectRestricted}
+          />
         </Field>
 
         <div className="grid grid-cols-2 gap-3">
