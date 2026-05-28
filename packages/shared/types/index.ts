@@ -22,6 +22,24 @@ export interface AnswerEnvelope {
   risk_level: RiskLevel;
   escalation_flag: boolean;
   limitations: string[];
+  session_id?: string;
+}
+
+export interface ChatSession {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChatTurn {
+  question: string;
+  envelope: AnswerEnvelope;
+}
+
+export interface ChatThread {
+  session: ChatSession;
+  turns: ChatTurn[];
 }
 
 export interface DocumentMetadata {
@@ -42,6 +60,7 @@ export interface UploadResponse {
 export interface ChatRequest {
   question: string;
   top_k?: number;
+  session_id?: string;
 }
 
 export interface IndexingStatus {
