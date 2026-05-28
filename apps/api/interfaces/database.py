@@ -51,6 +51,25 @@ class ChunkRecord:
 
 
 @dataclass
+class ChatSessionRecord:
+    id: str
+    user_id: str
+    title: str
+    created_at: datetime
+    updated_at: datetime
+
+
+@dataclass
+class ChatMessageRecord:
+    id: str
+    session_id: str
+    role: str               # 'user' | 'assistant'
+    content: str
+    envelope: dict[str, Any] | None  # full AnswerEnvelope for assistant rows
+    created_at: datetime
+
+
+@dataclass
 class AuditEntry:
     id: str | None
     user_id: str
@@ -131,6 +150,35 @@ class Database(ABC):
 
     @abstractmethod
     async def increment_reference(self, doc_id: str) -> None:
+        pass
+
+    # ── Chat history ──────────────────────────────────────────────────────
+
+    @abstractmethod
+    async def create_chat_session(self, session: ChatSessionRecord) -> None:
+        pass
+
+    @abstractmethod
+    async def get_chat_session(self, session_id: str) -> ChatSessionRecord | None:
+        pass
+
+    @abstractmethod
+    async def touch_chat_session(self, session_id: str) -> None:
+        """Update updated_at to now (called on each new message)."""
+        pass
+
+    @abstractmethod
+    async def list_chat_sessions(
+        self, user_id: str, limit: int = 50
+    ) -> list[ChatSessionRecord]:
+        pass
+
+    @abstractmethod
+    async def insert_chat_message(self, message: ChatMessageRecord) -> None:
+        pass
+
+    @abstractmethod
+    async def list_chat_messages(self, session_id: str) -> list[ChatMessageRecord]:
         pass
 
     # ── Chunks / Audit ────────────────────────────────────────────────────

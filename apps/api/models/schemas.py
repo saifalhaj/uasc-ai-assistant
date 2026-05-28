@@ -73,6 +73,25 @@ class AnswerEnvelope(BaseModel):
     risk_level: str  # low | medium | high
     escalation_flag: bool
     limitations: list[str]
+    session_id: str | None = None  # server-assigned; echoes on every POST /chat
+
+
+class ChatSessionOut(BaseModel):
+    id: str
+    title: str
+    created_at: str  # ISO 8601
+    updated_at: str  # ISO 8601
+
+
+class ChatTurnOut(BaseModel):
+    """One Q + A pair as the frontend renders it."""
+    question: str
+    envelope: AnswerEnvelope
+
+
+class ChatThreadOut(BaseModel):
+    session: ChatSessionOut
+    turns: list[ChatTurnOut]
 
 
 class UploadRequest(BaseModel):
@@ -86,6 +105,7 @@ class UploadRequest(BaseModel):
 class ChatRequest(BaseModel):
     question: str
     top_k: int = 5
+    session_id: str | None = None  # if absent, server creates a new thread
 
 
 class IndexingStatusResponse(BaseModel):
