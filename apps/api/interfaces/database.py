@@ -181,6 +181,15 @@ class Database(ABC):
     async def list_chat_messages(self, session_id: str) -> list[ChatMessageRecord]:
         pass
 
+    @abstractmethod
+    async def update_chat_session_title(self, session_id: str, title: str) -> None:
+        pass
+
+    @abstractmethod
+    async def delete_chat_session(self, session_id: str) -> bool:
+        """Returns True if a row was deleted."""
+        pass
+
     # ── Chunks / Audit ────────────────────────────────────────────────────
 
     @abstractmethod

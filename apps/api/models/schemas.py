@@ -94,6 +94,10 @@ class ChatThreadOut(BaseModel):
     turns: list[ChatTurnOut]
 
 
+class ChatRenameRequest(BaseModel):
+    title: str
+
+
 class UploadRequest(BaseModel):
     title: str
     classification: str = "public"

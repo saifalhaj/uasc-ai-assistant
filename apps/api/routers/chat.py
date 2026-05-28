@@ -17,6 +17,7 @@ from interfaces.database import ChatMessageRecord, ChatSessionRecord
 from middleware.auth import AuthUser, can_see_restricted, get_current_user
 from models.schemas import (
     AnswerEnvelope,
+    ChatRenameRequest,
     ChatRequest,
     ChatSessionOut,
     ChatThreadOut,
@@ -163,3 +164,59 @@ async def get_chat(
         ),
         turns=turns,
     )
+
+
+# ── PATCH /chats/{id} ─────────────────────────────────────────────────────────
+
+@router.patch("/chats/{session_id}", response_model=ChatSessionOut)
+async def rename_chat(
+    session_id: str,
+    body: ChatRenameRequest,
+    user: AuthUser = Depends(get_current_user),
+    container: Container = Depends(get_container),
+) -> ChatSessionOut:
+    new_title = " ".join(body.title.split())
+    if not new_title:
+        raise HTTPException(status_code=400, detail="Title cannot be empty")
+    if len(new_title) > _TITLE_MAX:
+        new_title = new_title[: _TITLE_MAX - 1] + "…"
+
+    session = await container.database.get_chat_session(session_id)
+    if not session or session.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Chat thread not found")
+
+    await container.database.update_chat_session_title(session_id, new_title)
+    return ChatSessionOut(
+        id=session.id,
+        title=new_title,
+        created_at=session.created_at.isoformat(),
+        updated_at=session.updated_at.isoformat(),
+    )
+
+
+# ── DELETE /chats/{id} ────────────────────────────────────────────────────────
+
+@router.delete("/chats/{session_id}", status_code=204)
+async def delete_chat(
+    session_id: str,
+    user: AuthUser = Depends(get_current_user),
+    container: Container = Depends(get_container),
+) -> None:
+    session = await container.database.get_chat_session(session_id)
+    if not session or session.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Chat thread not found")
+
+    deleted = await container.database.delete_chat_session(session_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Chat thread not found")
+
+    # Audit trail — chat deletes are user-initiated but worth recording.
+    try:
+        await container.database.write_action_audit(
+            actor_id=user.id,
+            clearance=user.clearance_label,
+            action="chat.delete",
+            target=session_id,
+        )
+    except Exception:
+        pass
