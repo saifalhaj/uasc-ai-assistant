@@ -8,6 +8,7 @@ import { AnswerEnvelope } from '@/components/chat/AnswerEnvelope';
 import { LoadingStages, type LoadingStage } from '@/components/chat/LoadingStages';
 import { ErrorState } from '@/components/chat/ErrorState';
 import { CitationCard } from '@/components/chat/CitationCard';
+import { DeleteChatModal } from '@/components/chat/DeleteChatModal';
 import { useAuth, hasLevel } from '@/app/AuthProvider';
 import type { AnswerEnvelopeData, Citation, Risk, SourceTier } from '@/lib/types';
 import type {
@@ -102,6 +103,8 @@ export default function ChatPage() {
   const [sessions, setSessions] = useState<ApiChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [loadingThread, setLoadingThread] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<ApiChatSession | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom on each new turn (but not when hydrating a past thread)
@@ -217,6 +220,60 @@ export default function ChatPage() {
     setFocusedCitation(null);
   }
 
+  // ── Rename a thread ──────────────────────────────────────────────────────
+  async function handleRename(id: string, newTitle: string): Promise<boolean> {
+    // Optimistic — patch local list before the request
+    setSessions(prev => prev.map(s => (s.id === id ? { ...s, title: newTitle } : s)));
+    try {
+      const res = await fetch(`${API_URL}/chats/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: newTitle }),
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      // Server may normalise the title (whitespace, truncate) — sync back.
+      const updated: ApiChatSession = await res.json();
+      setSessions(prev => prev.map(s => (s.id === id ? { ...s, title: updated.title } : s)));
+      return true;
+    } catch {
+      // Revert by refetching
+      refreshSessions();
+      return false;
+    }
+  }
+
+  // ── Delete a thread ──────────────────────────────────────────────────────
+  function requestDelete(id: string) {
+    const s = sessions.find(x => x.id === id);
+    if (s) setDeleteTarget(s);
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`${API_URL}/chats/${deleteTarget.id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`);
+      // Optimistic local removal
+      setSessions(prev => prev.filter(s => s.id !== deleteTarget.id));
+      // If we just deleted the open thread, clear the main view
+      if (currentSessionId === deleteTarget.id) {
+        setTurns([]);
+        setCurrentSessionId(null);
+        setFocusedCitation(null);
+      }
+    } catch {
+      refreshSessions();
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
+  }
+
   const recentItems = sessions.map(s => ({
     id: s.id,
     title: s.title,
@@ -228,12 +285,15 @@ export default function ChatPage() {
   const activeCitations = lastDoneTurn?.state === 'done' ? lastDoneTurn.data.citations : [];
 
   return (
+    <>
     <ChatLayout
       sidebar={
         <Sidebar
           recent={recentItems}
           onNew={handleNew}
           onOpen={handleOpenSession}
+          onRename={handleRename}
+          onDelete={requestDelete}
           libraryHref="/upload"
         />
       }
@@ -315,6 +375,14 @@ export default function ChatPage() {
         </CitationsRail>
       }
     />
+    <DeleteChatModal
+      open={!!deleteTarget}
+      title={deleteTarget?.title ?? ''}
+      onCancel={() => setDeleteTarget(null)}
+      onConfirm={confirmDelete}
+      isDeleting={isDeleting}
+    />
+    </>
   );
 }
 

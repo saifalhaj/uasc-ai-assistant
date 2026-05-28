@@ -390,6 +390,24 @@ class SupabasePostgresDB(Database):
             for row in (result.data or [])
         ]
 
+    async def update_chat_session_title(self, session_id: str, title: str) -> None:
+        await (
+            self._db.table("chat_sessions")
+            .update({"title": title})
+            .eq("id", session_id)
+            .execute()
+        )
+
+    async def delete_chat_session(self, session_id: str) -> bool:
+        # chat_messages cascades via FK.
+        result = await (
+            self._db.table("chat_sessions")
+            .delete()
+            .eq("id", session_id)
+            .execute()
+        )
+        return len(result.data or []) > 0
+
     # ── Chunks / Audit ─────────────────────────────────────────────────────────
 
     async def insert_chunk(self, chunk: ChunkRecord) -> ChunkRecord:
