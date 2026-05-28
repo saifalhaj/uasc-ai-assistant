@@ -22,8 +22,36 @@ export function LandingHero({
   capabilities,
 }: LandingHeroProps) {
   return (
-    <section className="grid place-items-center min-h-full overflow-auto px-5 py-10">
-      <div className="w-full max-w-[980px] flex flex-col items-center gap-7">
+    <section className="relative grid place-items-center min-h-full overflow-hidden px-5 py-10">
+      {/* Ambient backdrop — two muted, looping operational feeds.
+          Decorative only; aria-hidden, pointer-events:none, z-0.
+          Drop the MP4 sources at public/assets/ to activate. */}
+      <div className="ambient-video left" aria-hidden="true">
+        <video
+          src="/assets/bg-humans-hardware.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+        />
+        <div className="scan" />
+        <div className="feed-tag">FEED · HUMANS / HARDWARE</div>
+      </div>
+      <div className="ambient-video right" aria-hidden="true">
+        <video
+          src="/assets/bg-tactical.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+        />
+        <div className="scan" />
+        <div className="feed-tag">FEED · TACTICAL DOMINANCE</div>
+      </div>
+
+      <div className="relative z-[2] w-full max-w-[980px] flex flex-col items-center gap-7">
         <div className="w-[400px]">
           <Image
             src={logoSrc}
