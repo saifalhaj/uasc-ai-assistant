@@ -4,7 +4,7 @@ import { cn } from '@/lib/cn';
 import { useState, type KeyboardEvent } from 'react';
 
 export function Composer({
-  scope = 'public + internal corpus',
+  scope = 'public + internal insight library',
   model = 'UASC-RAG-v3',
   stage = 'ready',
   onSubmit,
