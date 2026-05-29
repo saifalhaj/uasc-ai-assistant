@@ -70,7 +70,7 @@ export function Dropzone({
         ↑
       </div>
       <div className="text-sm font-medium text-text-hi">
-        {picked ? picked.name : 'Drop a file to add it to the corpus'}
+        {picked ? picked.name : 'Drop a file to add it to the UASC Insight Database'}
       </div>
       <div className="text-[13px] text-text-dim mt-0.5">
         {picked

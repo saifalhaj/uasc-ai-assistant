@@ -98,7 +98,7 @@ export default function LibraryPage() {
       // optimistic remove
       setDocuments(prev => prev.filter(d => d.id !== deleteTarget.id));
       setTotal(t => Math.max(0, t - 1));
-      showToast(`${deleteTarget.id} removed from corpus.`, 'green');
+      showToast(`${deleteTarget.id} removed from UASC Insight Database.`, 'green');
     } catch {
       showToast('Delete failed. Please try again.', 'red');
     } finally {

@@ -98,7 +98,7 @@ export default function LibraryDashboardPage() {
           <div>
             <h1 className="m-0 text-[24px] font-medium text-text-hi tracking-[-0.01em]">Library Dashboard</h1>
             <div className="mt-1 font-mono text-[11px] text-text-dim tracking-[0.04em]">
-              corpus health · upload activity · reference signals · audit feed
+              UASC Insight Database health · upload activity · reference signals · audit feed
             </div>
           </div>
           <div className="ml-auto flex items-center gap-2">
@@ -194,7 +194,7 @@ export default function LibraryDashboardPage() {
           </Card>
 
           <Card>
-            <CardHead title="Language" sub="bilingual corpus" />
+            <CardHead title="Language" sub="bilingual database" />
             <StackBar segs={[{ pct: 62, color: '#b8c0c8', title: 'EN' }, { pct: 31, color: '#6e7681', title: 'AR' }, { pct: 7, color: '#4a5058', title: 'Bilingual' }]} />
             <div className="flex flex-col gap-2 mt-[14px]">
               <LegRow dot="#b8c0c8" label="English"   value="7 714" pct="62.0%" />

@@ -313,7 +313,7 @@ export default function ChatPage() {
                 UASC Operational Intelligence
               </div>
               <p className="text-text-faint text-sm max-w-xs">
-                Ask a question in English or Arabic to query the operational corpus.
+                Ask a question in English or Arabic to query the UASC Insight Database.
               </p>
             </div>
           )}
