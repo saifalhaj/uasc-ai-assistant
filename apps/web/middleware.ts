@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PUBLIC_PREFIXES = ['/login', '/help', '/api/auth', '/_next', '/favicon'];
+const PUBLIC_PREFIXES = ['/login', '/help', '/api/auth', '/_next', '/favicon', '/assets'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -23,5 +23,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.png|.*\\.svg|.*\\.ico).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.png|.*\\.jpe?g|.*\\.webp|.*\\.gif|.*\\.svg|.*\\.ico|.*\\.mp4|.*\\.webm).*)'],
 };
